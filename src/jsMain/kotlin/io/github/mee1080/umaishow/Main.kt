@@ -1,4 +1,4 @@
-package umaishow
+package io.github.mee1080.umaishow
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
