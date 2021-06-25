@@ -3,33 +3,51 @@ package io.github.mee1080.umaishow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import org.jetbrains.compose.web.css.padding
-import org.jetbrains.compose.web.css.px
-import org.jetbrains.compose.web.dom.Button
-import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.Span
-import org.jetbrains.compose.web.dom.Text
+import io.github.mee1080.umaishow.data.Store
+import org.jetbrains.compose.web.css.Color
+import org.jetbrains.compose.web.css.backgroundColor
+import org.jetbrains.compose.web.dom.*
 import org.jetbrains.compose.web.renderComposable
+import org.w3c.dom.HTMLSelectElement
+import kotlin.math.max
 
 fun main() {
-    var count: Int by mutableStateOf(0)
+    var chara: Int by mutableStateOf(0)
 
     renderComposable(rootElementId = "root") {
-        Div({ style { padding(25.px) } }) {
-            Button(attrs = {
-                onClick { count -= 1 }
+        Div {
+            Select({
+                onChange {
+                    console.log(it.nativeEvent.currentTarget)
+                    chara = it.target<HTMLSelectElement>().value.toInt()
+                }
             }) {
-                Text("-")
+                Store.charaList.forEachIndexed { index, value ->
+                    Option(index.toString()) { Text(value) }
+                }
             }
-
-            Span({ style { padding(15.px) } }) {
-                Text("$count")
-            }
-
-            Button(attrs = {
-                onClick { count += 1 }
-            }) {
-                Text("+")
+        }
+        Div {
+            Table {
+                Tr {
+                    Th { Text("") }
+                    Store.charaList.forEach { Th({ style { property("writing-mode", "vertical-rl") } }) { Text(it) } }
+                }
+                Store.charaList.forEachIndexed { index, name ->
+                    Tr {
+                        Th({ style { property("white-space", "nowrap") } }) { Text(name) }
+                        Store.grandParentList(chara, index).forEach {
+                            val h = max(0, 27 - it) * 10
+                            Td({
+                                style {
+                                    backgroundColor(Color.HSL(h, 100, 80))
+                                }
+                            }) {
+                                Text(it.toString())
+                            }
+                        }
+                    }
+                }
             }
         }
     }
