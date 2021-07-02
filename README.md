@@ -1,12 +1,11 @@
-# ウマ娘相性表
+# ウマ娘相性表 (umaishow)
 
 https://mee1080.github.io/umaishow/
 
 # Author
 
-mee1080
+Copyright (c) 2021 mee1080
 
 # License
 
-AGPL
- 
+AGPL v3
