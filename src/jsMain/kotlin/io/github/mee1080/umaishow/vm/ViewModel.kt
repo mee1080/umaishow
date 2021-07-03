@@ -41,6 +41,10 @@ class ViewModel(store: Store) {
         child = value
         if (parent1 == value) parent1 = -1
         if (parent2 == value) parent2 = -1
+        if (parent11 == value) parent11 = -1
+        if (parent12 == value) parent12 = -1
+        if (parent21 == value) parent21 = -1
+        if (parent22 == value) parent22 = -1
     }
 
     val parent1List get() = generateParentList { listOf(Store.parent(child, it), calcTotalRelation(parent1 = it)) }
