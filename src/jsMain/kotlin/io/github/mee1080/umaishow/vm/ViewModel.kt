@@ -32,10 +32,12 @@ class ViewModel(store: Store) {
 
     var orderByRelation by mutableStateOf(true)
 
-    val childList = charaList.mapIndexed { index, name -> index to name }
+    val childList = listOf(-1 to "2世代相性") + charaList.mapIndexed { index, name -> index to name }
 
-    var child by mutableStateOf(0)
+    var child by mutableStateOf(-1)
         private set
+
+    val childSelected get() = child >= 0
 
     fun updateChild(value: Int) {
         child = value
@@ -126,6 +128,7 @@ class ViewModel(store: Store) {
     }
 
     private fun generateParentList(calcRelation: (Int) -> List<Int>): List<Pair<Int, String>> {
+        if (!childSelected) return emptyList()
         var list = childList
             .filter { it.first != child }
             .map { (index, name) ->
@@ -139,8 +142,10 @@ class ViewModel(store: Store) {
     }
 
     val relationTable
-        get() = charaList.mapIndexed { index, name ->
+        get() = if (childSelected) charaList.mapIndexed { index, name ->
             Triple(name, Store.parent(child, index), Store.grandParentList(child, index))
+        } else charaList.mapIndexed { index, name ->
+            Triple(name, 0, Store.parentList(index))
         }
 
 }

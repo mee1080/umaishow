@@ -11,7 +11,9 @@ fun RelationTable(model: ViewModel) {
         Table {
             Tr {
                 Th { Text("") }
-                Th({ classes(AppStyleSheet.verticalHeader) }) { Text("親相性") }
+                if (model.childSelected) {
+                    Th({ classes(AppStyleSheet.verticalHeader) }) { Text("親相性") }
+                }
                 model.charaList.forEach {
                     Th({ classes(AppStyleSheet.verticalHeader) }) { Text(it) }
                 }
@@ -19,7 +21,9 @@ fun RelationTable(model: ViewModel) {
             model.relationTable.forEach { (name, parent, grandParent) ->
                 Tr {
                     Th({ classes(AppStyleSheet.horizontalHeader) }) { Text(name) }
-                    RelationColumn(parent, true)
+                    if (model.childSelected) {
+                        RelationColumn(parent, true)
+                    }
                     grandParent.forEach { RelationColumn(it) }
                 }
             }
