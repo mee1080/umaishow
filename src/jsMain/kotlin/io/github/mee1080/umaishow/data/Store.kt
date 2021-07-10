@@ -3,30 +3,29 @@ package io.github.mee1080.umaishow.data
 object Store {
     val charaList = Source.chara
 
-    val charaCount = charaList.size
+    val charaRange = charaList.indices
 
-    fun chara(index: Int) = charaList[index]
+    val parentMap = Source.parent
 
-    fun parentList(index: Int) = Source.parent.slice(index * charaCount until (index + 1) * charaCount)
+    private val grandParentMap = Source.grandParent
+
+    fun parentList(index: Int) = parentMap[index]
 
     fun parent(index1: Int, index2: Int) =
-        if (charaList.indices.contains(index1)
-            && charaList.indices.contains(index2)
-        ) {
-            Source.parent[index1 * charaCount + index2]
+        if (index1 in charaRange && index2 in charaRange) {
+            parentMap[index1][index2]
         } else 0
 
-    fun grandParentList(index1: Int, index2: Int) = Source.grandParent.slice(
-        index1 * charaCount * charaCount + index2 * charaCount until index1 * charaCount * charaCount + (index2 + 1) * charaCount
-    )
+    fun grandParentListList(index1: Int): List<List<Int>> {
+        return grandParentMap[index1]
+    }
 
-    fun grandParentListList(index: Int) = (0 until charaCount).map { grandParentList(index, it) }
+    fun grandParentList(index1: Int, index2: Int): List<Int> {
+        return grandParentMap[index1][index2]
+    }
 
     fun grandParent(index1: Int, index2: Int, index3: Int) =
-        if (charaList.indices.contains(index1)
-            && charaList.indices.contains(index2)
-            && charaList.indices.contains(index3)
-        ) {
-            Source.grandParent[index1 * charaCount * charaCount + index2 * charaCount + index3]
+        if (index1 in charaRange && index2 in charaRange && index3 in charaRange) {
+            grandParentMap[index1][index2][index3]
         } else 0
 }
