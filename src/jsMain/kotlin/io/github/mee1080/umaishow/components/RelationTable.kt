@@ -10,13 +10,26 @@ fun RelationTable(model: ViewModel) {
     Div {
         Table {
             Tr {
-                Th { Text("") }
+                Th({
+                    classes(AppStyleSheet.ckickable)
+                    onClick { model.sort(-2) }
+                }) { Small { Text("列クリックでソート→") } }
                 if (model.childSelected) {
-                    Th({ classes(AppStyleSheet.verticalHeader) }) { Text("親相性") }
+                    Th({
+                        classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
+                        onClick { model.sort(-1) }
+                    }) { Text("親相性") }
                 }
-                model.charaList.forEach {
-                    Th({ classes(AppStyleSheet.verticalHeader) }) { Text(it) }
+                model.charaList.forEachIndexed { index, name ->
+                    Th({
+                        classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
+                        onClick { model.sort(index) }
+                    }) { Text(name) }
                 }
+                Th({
+                    classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
+                    onClick { model.sort(model.charaList.size) }
+                }) { Text("合計") }
             }
             model.relationTable.forEach { (name, parent, grandParent) ->
                 Tr {
@@ -24,7 +37,13 @@ fun RelationTable(model: ViewModel) {
                     if (model.childSelected) {
                         RelationColumn(parent, true)
                     }
-                    grandParent.forEach { RelationColumn(it) }
+                    grandParent.forEachIndexed { index, value ->
+                        RelationColumn(
+                            value,
+                            false,
+                            index < grandParent.lastIndex
+                        )
+                    }
                 }
             }
         }

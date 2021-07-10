@@ -12,4 +12,8 @@ object AppStyleSheet : StyleSheet() {
         property("white-space", "nowrap")
         property("text-align", "right")
     }
+
+    val ckickable by style {
+        property("cursor", "pointer")
+    }
 }

@@ -10,13 +10,13 @@ import org.jetbrains.compose.web.dom.Text
 import kotlin.math.max
 
 @Composable
-fun RelationColumn(value: Int, bold: Boolean = false) {
+fun RelationColumn(value: Int, bold: Boolean = false, colored: Boolean = true) {
     val h = max(0, 27 - value) * 10
     Td({
         classes(RelationColumnStyle.relationColumn)
         style {
             if (bold) property("font-weight", "bold")
-            backgroundColor(Color.HSL(h, 100, 80))
+            if (colored) backgroundColor(Color.HSL(h, 100, 80))
         }
     }) {
         Text(value.toString())

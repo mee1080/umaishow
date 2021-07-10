@@ -32,7 +32,9 @@ class ViewModel(store: Store) {
 
     var orderByRelation by mutableStateOf(true)
 
-    val childList = listOf(-1 to "2世代相性") + charaList.mapIndexed { index, name -> index to name }
+    val indexedCharaList = charaList.mapIndexed { index, name -> index to name }
+
+    val childList = listOf(-1 to "2世代相性") + indexedCharaList
 
     var child by mutableStateOf(-1)
         private set
@@ -129,7 +131,7 @@ class ViewModel(store: Store) {
 
     private fun generateParentList(calcRelation: (Int) -> List<Int>): List<Pair<Int, String>> {
         if (!childSelected) return emptyList()
-        var list = childList
+        var list = indexedCharaList
             .filter { it.first != child }
             .map { (index, name) ->
                 val relation = calcRelation(index)
@@ -141,11 +143,27 @@ class ViewModel(store: Store) {
         return listOf(-1 to "未選択") + list.map { it.first to it.second }
     }
 
-    val relationTable
-        get() = if (childSelected) charaList.mapIndexed { index, name ->
-            Triple(name, Store.parent(child, index), Store.grandParentList(child, index))
-        } else charaList.mapIndexed { index, name ->
-            Triple(name, 0, Store.parentList(index))
+    val relationTable: List<Triple<String, Int, List<Int>>>
+        get() {
+            var list = if (childSelected) charaList.mapIndexed { index, name ->
+                Triple(name, Store.parent(child, index), Store.grandParentList(child, index))
+            } else charaList.mapIndexed { index, name ->
+                Triple(name, 0, Store.parentList(index))
+            }
+            list = list.map {
+                Triple(it.first, it.second, it.third + it.third.sum())
+            }
+            return when (sortKey) {
+                -2 -> list
+                -1 -> list.sortedByDescending { it.second }
+                else -> list.sortedByDescending { it.third[sortKey] }
+            }
         }
 
+    var sortKey by mutableStateOf(-2)
+        private set
+
+    fun sort(key: Int) {
+        sortKey = key
+    }
 }
