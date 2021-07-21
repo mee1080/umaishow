@@ -45,13 +45,15 @@ class ViewModel(store: Store) {
         child = value
         if (parent1 == value) parent1 = -1
         if (parent2 == value) parent2 = -1
-        if (parent11 == value) parent11 = -1
-        if (parent12 == value) parent12 = -1
-        if (parent21 == value) parent21 = -1
-        if (parent22 == value) parent22 = -1
     }
 
-    val parent1List get() = generateParentList { listOf(Store.parent(child, it), calcTotalRelation(parent1 = it)) }
+    val parent1List
+        get() = generateParentList(false) {
+            listOf(
+                Store.parent(child, it),
+                calcTotalRelation(parent1 = it)
+            )
+        }
 
     var parent1: Int by mutableStateOf(-1)
         private set
@@ -60,7 +62,13 @@ class ViewModel(store: Store) {
         parent1 = value
     }
 
-    val parent2List get() = generateParentList { listOf(Store.parent(child, it), calcTotalRelation(parent2 = it)) }
+    val parent2List
+        get() = generateParentList(false) {
+            listOf(
+                Store.parent(child, it),
+                calcTotalRelation(parent2 = it)
+            )
+        }
 
     var parent2: Int by mutableStateOf(-1)
         private set
@@ -129,10 +137,13 @@ class ViewModel(store: Store) {
         parent22 = value
     }
 
-    private fun generateParentList(calcRelation: (Int) -> List<Int>): List<Pair<Int, String>> {
+    private fun generateParentList(
+        includeChild: Boolean = true,
+        calcRelation: (Int) -> List<Int>
+    ): List<Pair<Int, String>> {
         if (!childSelected) return emptyList()
         var list = indexedCharaList
-            .filter { it.first != child }
+            .filter { includeChild || it.first != child }
             .map { (index, name) ->
                 val relation = calcRelation(index)
                 Triple(index, "$name (${relation.joinToString("->")})", relation.last())
