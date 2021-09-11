@@ -1,10 +1,10 @@
 plugins {
-    kotlin("multiplatform") version "1.5.10"
-    id("org.jetbrains.compose") version "0.5.0-build226"
+    kotlin("multiplatform") version "1.5.21"
+    id("org.jetbrains.compose") version "1.0.0-alpha3"
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+group = "io.github.mee1080.umaishow"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
