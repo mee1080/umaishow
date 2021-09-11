@@ -19,6 +19,7 @@
 package io.github.mee1080.umaishow.components
 
 import androidx.compose.runtime.Composable
+import io.github.mee1080.umaishow.onClickOrTouch
 import io.github.mee1080.umaishow.style.AppStyleSheet
 import io.github.mee1080.umaishow.vm.ViewModel
 import org.jetbrains.compose.web.dom.*
@@ -30,13 +31,13 @@ fun RelationTable(model: ViewModel) {
             Tr {
                 Th({
                     classes(AppStyleSheet.ckickable)
-                    onClick { model.sort(-2) }
+                    onClickOrTouch { model.sort(-2) }
                 }) { Small { Text("列クリックでソート→") } }
                 if (model.childSelected) {
                     Th {
                         Span({
                             classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
-                            onClick { model.sort(-1) }
+                            onClickOrTouch { model.sort(-1) }
                         }) { Text("親相性") }
                     }
 
@@ -45,14 +46,14 @@ fun RelationTable(model: ViewModel) {
                     Th {
                         Span({
                             classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
-                            onClick { model.sort(index) }
+                            onClickOrTouch { model.sort(index) }
                         }) { Text(name) }
                     }
                 }
                 Th {
                     Span({
                         classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
-                        onClick { model.sort(model.charaList.size) }
+                        onClickOrTouch { model.sort(model.charaList.size) }
                     }) { Text("合計") }
                 }
             }
