@@ -30,13 +30,13 @@ fun RelationTable(model: ViewModel) {
         Table {
             Tr {
                 Th({
-                    classes(AppStyleSheet.ckickable)
+                    classes(AppStyleSheet.clickable)
                     onClickOrTouch { model.sort(-2) }
                 }) { Small { Text("列クリックでソート→") } }
                 if (model.childSelected) {
                     Th {
                         Span({
-                            classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
+                            classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
                             onClickOrTouch { model.sort(-1) }
                         }) { Text("親相性") }
                     }
@@ -45,14 +45,14 @@ fun RelationTable(model: ViewModel) {
                 model.charaList.forEachIndexed { index, name ->
                     Th {
                         Span({
-                            classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
+                            classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
                             onClickOrTouch { model.sort(index) }
                         }) { Text(name) }
                     }
                 }
                 Th {
                     Span({
-                        classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
+                        classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
                         onClickOrTouch { model.sort(model.charaList.size) }
                     }) { Text("合計") }
                 }

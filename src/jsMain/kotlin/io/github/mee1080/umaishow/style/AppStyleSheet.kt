@@ -36,7 +36,7 @@ object AppStyleSheet : StyleSheet() {
         property("text-align", "right")
     }
 
-    val ckickable by style {
+    val clickable by style {
         property("cursor", "pointer")
     }
 }
