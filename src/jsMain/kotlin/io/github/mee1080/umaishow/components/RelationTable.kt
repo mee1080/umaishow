@@ -1,3 +1,21 @@
+/*
+ * Copyright 2021 mee1080
+ *
+ * This file is part of umaishow.
+ *
+ * umaishow is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * umaishow is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with umaishow.  If not, see <https://www.gnu.org/licenses/>.
+ */
 package io.github.mee1080.umaishow.components
 
 import androidx.compose.runtime.Composable
@@ -15,21 +33,28 @@ fun RelationTable(model: ViewModel) {
                     onClick { model.sort(-2) }
                 }) { Small { Text("列クリックでソート→") } }
                 if (model.childSelected) {
-                    Th({
-                        classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
-                        onClick { model.sort(-1) }
-                    }) { Text("親相性") }
+                    Th {
+                        Span({
+                            classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
+                            onClick { model.sort(-1) }
+                        }) { Text("親相性") }
+                    }
+
                 }
                 model.charaList.forEachIndexed { index, name ->
-                    Th({
-                        classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
-                        onClick { model.sort(index) }
-                    }) { Text(name) }
+                    Th {
+                        Span({
+                            classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
+                            onClick { model.sort(index) }
+                        }) { Text(name) }
+                    }
                 }
-                Th({
-                    classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
-                    onClick { model.sort(model.charaList.size) }
-                }) { Text("合計") }
+                Th {
+                    Span({
+                        classes(AppStyleSheet.verticalHeader, AppStyleSheet.ckickable)
+                        onClick { model.sort(model.charaList.size) }
+                    }) { Text("合計") }
+                }
             }
             model.relationTable.forEach { (name, parent, grandParent) ->
                 Tr {

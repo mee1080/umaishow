@@ -19,11 +19,16 @@
 package io.github.mee1080.umaishow.style
 
 import org.jetbrains.compose.web.css.StyleSheet
+import org.jetbrains.compose.web.css.em
+import org.jetbrains.compose.web.css.height
+import org.jetbrains.compose.web.css.width
 
 object AppStyleSheet : StyleSheet() {
     val verticalHeader by style {
         property("writing-mode", "vertical-rl")
         property("text-align", "right")
+        height(10.em)
+        width(1.5.em)
     }
 
     val horizontalHeader by style {
