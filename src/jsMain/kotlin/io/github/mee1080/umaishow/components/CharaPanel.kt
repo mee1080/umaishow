@@ -24,6 +24,7 @@ import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.color
 import org.jetbrains.compose.web.css.display
+import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
 
@@ -69,6 +70,18 @@ fun CharaPanel(model: ViewModel) {
                     Div {
                         CharaSelect("祖2-1：", model.parent21List, model.parent21) { model.updateParent21(it) }
                         CharaSelect("祖2-2：", model.parent22List, model.parent22) { model.updateParent22(it) }
+                    }
+                }
+                Div {
+                    Button({
+                        onClick { model.autoSetParents() }
+                    }) {
+                        Text("相性が高くなるよう自動設定")
+                    }
+                    Button({
+                        onClick { model.clearParents() }
+                    }) {
+                        Text("すべて未設定に")
                     }
                 }
             }
