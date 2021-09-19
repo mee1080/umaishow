@@ -19,6 +19,7 @@
 package io.github.mee1080.umaishow.components
 
 import androidx.compose.runtime.Composable
+import io.github.mee1080.umaishow.onClickOrTouch
 import io.github.mee1080.umaishow.vm.ViewModel
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle
@@ -74,12 +75,12 @@ fun CharaPanel(model: ViewModel) {
                 }
                 Div {
                     Button({
-                        onClick { model.autoSetParents() }
+                        onClickOrTouch { model.autoSetParents() }
                     }) {
                         Text("相性が高くなるよう自動設定")
                     }
                     Button({
-                        onClick { model.clearParents() }
+                        onClickOrTouch { model.clearParents() }
                     }) {
                         Text("すべて未設定に")
                     }
