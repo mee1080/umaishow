@@ -49,10 +49,10 @@ fun CharaPanel(model: ViewModel) {
             if (model.childSelected) {
                 Div {
                     LabeledRadio("order", "1", "相性順", model.orderByRelation) {
-                        model.orderByRelation = true
+                        model.updateOrderByRelation(true)
                     }
                     LabeledRadio("order", "0", "名前順", !model.orderByRelation) {
-                        model.orderByRelation = false
+                        model.updateOrderByRelation(false)
                     }
                 }
             }
@@ -78,6 +78,12 @@ fun CharaPanel(model: ViewModel) {
                         onClickOrTouch { model.autoSetParents() }
                     }) {
                         Text("相性が高くなるよう自動設定")
+                    }
+                    LabeledRadio("auto", "0", "全てのウマ娘", model.autoSetParentsTarget == 0) {
+                        model.updateAutoSetParentsTarget(0)
+                    }
+                    LabeledRadio("auto", "1", "所持のみ", model.autoSetParentsTarget == 1) {
+                        model.updateAutoSetParentsTarget(1)
                     }
                     Button({
                         onClickOrTouch { model.clearParents() }

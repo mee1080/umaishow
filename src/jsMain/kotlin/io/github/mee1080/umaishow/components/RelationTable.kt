@@ -29,6 +29,13 @@ fun RelationTable(model: ViewModel) {
     Div {
         Table {
             Tr {
+                if (model.childSelected) {
+                    Th {
+                        Span({
+                            classes(AppStyleSheet.verticalHeader)
+                        }) { Text("所持") }
+                    }
+                }
                 Th({
                     classes(AppStyleSheet.clickable)
                     onClickOrTouch { model.sort(-2) }
@@ -40,7 +47,6 @@ fun RelationTable(model: ViewModel) {
                             onClickOrTouch { model.sort(-1) }
                         }) { Text("親相性") }
                     }
-
                 }
                 model.charaList.forEachIndexed { index, name ->
                     Th {
@@ -59,6 +65,13 @@ fun RelationTable(model: ViewModel) {
             }
             model.relationTable.forEach { (name, parent, grandParent) ->
                 Tr {
+                    if (model.childSelected) {
+                        Td {
+                            CheckboxInput(model.ownedChara[name] ?: false) {
+                                onChange { model.updateOwnedChara(name, it.value) }
+                            }
+                        }
+                    }
                     Th({ classes(AppStyleSheet.horizontalHeader) }) { Text(name) }
                     if (model.childSelected) {
                         RelationColumn(parent, true)

@@ -19,8 +19,10 @@
 package io.github.mee1080.umaishow.vm
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import io.github.mee1080.umaishow.data.Store
 
 class ViewModel(store: Store) {
@@ -48,7 +50,13 @@ class ViewModel(store: Store) {
                 || (parent11 != -1 && parent11 == parent12)
                 || (parent21 != -1 && parent21 == parent22)
 
-    var orderByRelation by mutableStateOf(true)
+    var orderByRelation by mutableStateOf(Preferences.loadParentSortOrder())
+        private set
+
+    fun updateOrderByRelation(value: Boolean) {
+        orderByRelation = value
+        Preferences.saveParentSortOrder(value)
+    }
 
     val indexedCharaList = charaList.mapIndexed { index, name -> index to name }
 
@@ -172,19 +180,42 @@ class ViewModel(store: Store) {
         return listOf(-1 to "未選択") + list.map { it.first to it.second }
     }
 
+    var autoSetParentsTarget by mutableStateOf(Preferences.loadAutoSetParentsTarget())
+        private set
+
+    fun updateAutoSetParentsTarget(value: Int) {
+        autoSetParentsTarget = value
+        Preferences.saveAutoSetParentsTarget(value)
+    }
+
+    val ownedChara: SnapshotStateMap<String, Boolean>
+
+    init {
+        val saved = Preferences.loadOwnedChara()
+        ownedChara = mutableStateMapOf(*(charaList.map { it to saved.contains(it) }).toTypedArray())
+    }
+
+    fun updateOwnedChara(name: String, value: Boolean) {
+        ownedChara[name] = value
+        Preferences.saveOwnedChara(ownedChara.filterValues { it }.keys)
+    }
+
     fun autoSetParents() {
         if (!childSelected) return
-        val notChildList = charaList.indices.filter { it != child }.sortedByDescending { Store.parent(child, it) }
-        val p1List = (if (parent1 == -1) notChildList else listOf(parent1))
+        val targetList = indexedCharaList
+            .filter { it.first != child && (autoSetParentsTarget == 0 || ownedChara[it.second] ?: false) }
+            .map { it.first }
+            .sortedByDescending { Store.parent(child, it) }
+        val p1List = (if (parent1 == -1) targetList else listOf(parent1))
             .map { it to Store.parent(child, it) }
-        val p2List = (if (parent2 == -1) notChildList else listOf(parent2))
+        val p2List = (if (parent2 == -1) targetList else listOf(parent2))
             .map { it to Store.parent(child, it) }
-        val p11List = if (parent11 == -1) notChildList else listOf(parent11)
-        val p12List = if (parent12 == -1) notChildList else listOf(parent12)
-        val p21List = if (parent21 == -1) notChildList else listOf(parent21)
-        val p22List = if (parent22 == -1) notChildList else listOf(parent22)
+        val p11List = if (parent11 == -1) targetList else listOf(parent11)
+        val p12List = if (parent12 == -1) targetList else listOf(parent12)
+        val p21List = if (parent21 == -1) targetList else listOf(parent21)
+        val p22List = if (parent22 == -1) targetList else listOf(parent22)
         var maxRelation = 0
-        var maxCombination = listOf(1, 2, 3, 4, 5, 6)
+        var maxCombination = listOf(parent1, parent2, parent11, parent12, parent21, parent22)
         val checkedParent1 = BooleanArray(charaList.size) { false }
         p1List.forEach { p1Pair ->
             val p1 = p1Pair.first
