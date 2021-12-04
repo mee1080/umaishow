@@ -1,6 +1,6 @@
 plugins {
-    kotlin("multiplatform") version "1.5.21"
-    id("org.jetbrains.compose") version "1.0.0-alpha3"
+    kotlin("multiplatform") version "1.5.31"
+    id("org.jetbrains.compose") version "1.0.0"
 }
 
 group = "io.github.mee1080.umaishow"
@@ -27,17 +27,10 @@ kotlin {
             }
         }
     }
-//    sourceSets {
-//        val commonMain by getting {
-//            dependencies {
-//                implementation(kotlin("stdlib-common"))
-//            }
-//        }
-//        val commonTest by getting {
-//            dependencies {
-//                implementation(kotlin("test-common"))
-//                implementation(kotlin("test-annotations-common"))
-//            }
-//        }
-//    }
+}
+
+afterEvaluate {
+    rootProject.extensions.configure<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension> {
+        versions.webpackCli.version = "4.9.0"
+    }
 }

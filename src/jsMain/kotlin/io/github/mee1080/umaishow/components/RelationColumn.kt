@@ -23,6 +23,7 @@ import io.github.mee1080.umaishow.style.AppStyleSheet
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.StyleSheet
 import org.jetbrains.compose.web.css.backgroundColor
+import org.jetbrains.compose.web.css.hsl
 import org.jetbrains.compose.web.dom.Td
 import org.jetbrains.compose.web.dom.Text
 import kotlin.math.max
@@ -34,7 +35,7 @@ fun RelationColumn(value: Int, bold: Boolean = false, colored: Boolean = true) {
         classes(RelationColumnStyle.relationColumn)
         style {
             if (bold) property("font-weight", "bold")
-            if (colored) backgroundColor(Color.HSL(h, 100, 80))
+            if (colored) backgroundColor(hsl(h, 100, 80))
         }
     }) {
         Text(value.toString())

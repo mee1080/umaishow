@@ -23,7 +23,14 @@ import io.github.mee1080.umaishow.components.RelationTable
 import io.github.mee1080.umaishow.data.Store
 import io.github.mee1080.umaishow.style.AppStyleSheet
 import io.github.mee1080.umaishow.vm.ViewModel
+import org.jetbrains.compose.web.attributes.ATarget
+import org.jetbrains.compose.web.attributes.target
 import org.jetbrains.compose.web.css.Style
+import org.jetbrains.compose.web.css.marginTop
+import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.dom.A
+import org.jetbrains.compose.web.dom.Hr
+import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.renderComposable
 
 fun main() {
@@ -32,5 +39,13 @@ fun main() {
         Style(AppStyleSheet)
         CharaPanel(model)
         RelationTable(model)
+        Hr { style { marginTop(16.px) } }
+        A(
+            href = "https://github.com/mee1080/umaishow/blob/main/Library/web.md",
+            attrs = {
+                target(ATarget.Blank)
+                attr("rel", "noreferrer noopener")
+            }
+        ) { Text("使用ライブラリ") }
     }
 }
