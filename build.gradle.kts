@@ -1,6 +1,6 @@
 plugins {
-    kotlin("multiplatform") version "1.5.31"
-    id("org.jetbrains.compose") version "1.0.0"
+    kotlin("multiplatform") version "1.6.10"
+    id("org.jetbrains.compose") version "1.1.1"
 }
 
 group = "io.github.mee1080.umaishow"
@@ -29,8 +29,8 @@ kotlin {
     }
 }
 
-afterEvaluate {
-    rootProject.extensions.configure<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension> {
-        versions.webpackCli.version = "4.9.0"
-    }
-}
+//afterEvaluate {
+//    rootProject.extensions.configure<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension> {
+//        versions.webpackCli.version = "4.9.0"
+//    }
+//}

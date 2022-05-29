@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import io.github.mee1080.umaishow.data.Store
+import kotlin.math.min
 
 class ViewModel(store: Store) {
 
@@ -86,6 +87,7 @@ class ViewModel(store: Store) {
 
     fun updateParent1(value: Int) {
         parent1 = value
+        calcRate()
     }
 
     val parent2List
@@ -101,6 +103,7 @@ class ViewModel(store: Store) {
 
     fun updateParent2(value: Int) {
         parent2 = value
+        calcRate()
     }
 
     val parent11List
@@ -116,6 +119,7 @@ class ViewModel(store: Store) {
 
     fun updateParent11(value: Int) {
         parent11 = value
+        calcRate()
     }
 
     val parent12List
@@ -131,6 +135,7 @@ class ViewModel(store: Store) {
 
     fun updateParent12(value: Int) {
         parent12 = value
+        calcRate()
     }
 
     val parent21List
@@ -146,6 +151,7 @@ class ViewModel(store: Store) {
 
     fun updateParent21(value: Int) {
         parent21 = value
+        calcRate()
     }
 
     val parent22List
@@ -161,6 +167,7 @@ class ViewModel(store: Store) {
 
     fun updateParent22(value: Int) {
         parent22 = value
+        calcRate()
     }
 
     private fun generateParentList(
@@ -268,6 +275,7 @@ class ViewModel(store: Store) {
         parent12 = -1
         parent21 = -1
         parent22 = -1
+        calcRate()
     }
 
     val relationTable: List<Triple<String, Int, List<Int>>>
@@ -293,4 +301,139 @@ class ViewModel(store: Store) {
     fun sort(key: Int) {
         sortKey = key
     }
+
+    enum class Type(private val display: String) {
+        Ground("バ場"), Distance("距離"), RunningStyle("脚質");
+
+        override fun toString() = display
+    }
+
+    enum class Rank {
+        G, F, E, D, C, B, A, S,
+    }
+
+    data class CalcSetting(
+        val baseRate: List<Double> = listOf(0.0, 0.02, 0.05, 0.08),
+        val parentBonus: Int = 20,
+
+        val initialProperValue: List<Rank> = listOf(Rank.C, Rank.A, Rank.A),
+        val goalProperValue: List<Rank> = listOf(Rank.A, Rank.S, Rank.A),
+        val properType: List<Type> = List(6) { if (it == 1) Type.Distance else Type.Ground },
+        val properLevel: List<Int> = List(6) { 3 },
+    )
+
+    data class CalcResult(
+        val rate1: Double = 0.0,
+        val rate2: Double = 0.0,
+        val rate11: Double = 0.0,
+        val rate12: Double = 0.0,
+        val rate21: Double = 0.0,
+        val rate22: Double = 0.0,
+
+        val groundRate: List<Double> = List(8) { 0.0 },
+        val distanceRate: List<Double> = List(8) { 0.0 },
+        val runningTypeRate: List<Double> = List(8) { 0.0 },
+
+        val goalRate: Double = 0.0,
+    )
+
+    var calcSetting by mutableStateOf(CalcSetting())
+
+    var calcResult by mutableStateOf(CalcResult())
+
+    fun updateCalcSetting(update: CalcSetting.() -> CalcSetting) {
+        calcSetting = calcSetting.update()
+        calcRate()
+    }
+
+    fun updateCalcBaseRate(level: Int, value: Number) {
+        updateCalcSetting {
+            copy(baseRate = baseRate.mapIndexed { index, current -> if (index == level) value.toDouble() / 100 else current })
+        }
+    }
+
+    fun updateCalcInitialProper(type: Type, rank: Rank) {
+        updateCalcSetting {
+            copy(
+                initialProperValue = initialProperValue.mapIndexed { index, oldRank ->
+                    if (index == type.ordinal) rank else oldRank
+                }
+            )
+        }
+    }
+
+    fun updateCalcGoalProper(type: Type, rank: Rank) {
+        updateCalcSetting {
+            copy(
+                goalProperValue = goalProperValue.mapIndexed { index, oldRank ->
+                    if (index == type.ordinal) rank else oldRank
+                }
+            )
+        }
+    }
+
+    fun updateCalcProperType(target: Int, type: Type) {
+        updateCalcSetting {
+            copy(
+                properType = properType.mapIndexed { index, oldType -> if (index == target) type else oldType },
+            )
+        }
+    }
+
+    fun updateCalcProperLevel(target: Int, level: Int) {
+        updateCalcSetting {
+            copy(
+                properLevel = properLevel.mapIndexed { index, oldLevel -> if (index == target) level else oldLevel },
+            )
+        }
+    }
+
+    private fun calcRate() {
+        if (child == -1 || parent1 == -1 || parent2 == -1 || parent11 == -1 || parent12 == -1 || parent21 == -1 || parent22 == -1) {
+            calcResult = CalcResult()
+        }
+        val setting = calcSetting
+        val rate1 =
+            doCalcRate(setting.baseRate[setting.properLevel[0]], Store.parent(child, parent1) + setting.parentBonus)
+        val rate2 =
+            doCalcRate(setting.baseRate[setting.properLevel[1]], Store.parent(child, parent2) + setting.parentBonus)
+        val rate11 = doCalcRate(setting.baseRate[setting.properLevel[2]], Store.grandParent(child, parent1, parent11))
+        val rate12 = doCalcRate(setting.baseRate[setting.properLevel[3]], Store.grandParent(child, parent1, parent12))
+        val rate21 = doCalcRate(setting.baseRate[setting.properLevel[4]], Store.grandParent(child, parent2, parent21))
+        val rate22 = doCalcRate(setting.baseRate[setting.properLevel[5]], Store.grandParent(child, parent2, parent22))
+        val upRates =
+            arrayOf(rate1, rate1, rate2, rate2, rate11, rate11, rate12, rate12, rate21, rate21, rate22, rate22)
+        val upTargets = Array(12) { setting.properType[it / 2].ordinal }
+        val initialProperValues = setting.initialProperValue.map { it.ordinal }
+        val results = (0 until 4096).map { value -> Array(12) { value and (1 shl it) != 0 } }.map { upList ->
+            upList.foldIndexed(initialProperValues to 1.0) { index, (values, rate), up ->
+                if (up) {
+                    values.mapIndexed { valueIndex, value ->
+                        if (valueIndex == upTargets[index]) {
+                            min(value + 1, 7)
+                        } else value
+                    } to rate * upRates[index]
+                } else {
+                    values to rate * (1 - upRates[index])
+                }
+            }
+        }
+        val totalRates = Array(3) { Array(8) { 0.0 } }
+        var goalRate: Double = 0.0
+        val goals = setting.goalProperValue.map { it.ordinal }
+        results.forEach { (properValues, rate) ->
+            totalRates[0][properValues[0]] += rate
+            totalRates[1][properValues[1]] += rate
+            totalRates[2][properValues[2]] += rate
+            if (properValues[0] >= goals[0] && properValues[1] >= goals[1] && properValues[2] >= goals[2]) {
+                goalRate += rate
+            }
+        }
+        calcResult = CalcResult(
+            rate1, rate2, rate11, rate12, rate21, rate22,
+            totalRates[0].toList(), totalRates[1].toList(), totalRates[2].toList(), goalRate,
+        )
+    }
+
+    private fun doCalcRate(baseRate: Double, relation: Int) = baseRate * (100 + relation) / 100.0
 }

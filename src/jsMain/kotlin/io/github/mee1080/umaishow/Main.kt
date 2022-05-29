@@ -19,6 +19,7 @@
 package io.github.mee1080.umaishow
 
 import io.github.mee1080.umaishow.components.CharaPanel
+import io.github.mee1080.umaishow.components.RatePanel
 import io.github.mee1080.umaishow.components.RelationTable
 import io.github.mee1080.umaishow.data.Store
 import io.github.mee1080.umaishow.style.AppStyleSheet
@@ -39,6 +40,9 @@ fun main() {
         Style(AppStyleSheet)
         CharaPanel(model)
         RelationTable(model)
+        if (model.child != -1) {
+            RatePanel(model)
+        }
         Hr { style { marginTop(16.px) } }
         A(
             href = "https://github.com/mee1080/umaishow/blob/main/Library/web.md",
