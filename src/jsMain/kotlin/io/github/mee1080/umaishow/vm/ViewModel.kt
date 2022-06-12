@@ -266,6 +266,7 @@ class ViewModel(store: Store) {
         parent12 = maxCombination[3]
         parent21 = maxCombination[4]
         parent22 = maxCombination[5]
+        calcRate()
     }
 
     fun clearParents() {
@@ -313,7 +314,7 @@ class ViewModel(store: Store) {
     }
 
     data class CalcSetting(
-        val baseRate: List<Double> = listOf(0.0, 0.02, 0.05, 0.08),
+        val baseRate: List<Double> = listOf(0.0, 0.02, 0.04, 0.06),
         val parentBonus: Int = 20,
 
         val initialProperValue: List<Rank> = listOf(Rank.C, Rank.A, Rank.A),
