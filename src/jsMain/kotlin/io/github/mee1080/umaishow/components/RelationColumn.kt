@@ -20,7 +20,6 @@ package io.github.mee1080.umaishow.components
 
 import androidx.compose.runtime.Composable
 import io.github.mee1080.umaishow.style.AppStyleSheet
-import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.StyleSheet
 import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.hsl
@@ -29,10 +28,10 @@ import org.jetbrains.compose.web.dom.Text
 import kotlin.math.max
 
 @Composable
-fun RelationColumn(value: Int, bold: Boolean = false, colored: Boolean = true) {
+fun RelationColumn(value: Int, className: String, bold: Boolean = false, colored: Boolean = true) {
     val h = max(0, 27 - value) * 10
     Td({
-        classes(RelationColumnStyle.relationColumn)
+        classes(RelationColumnStyle.relationColumn, className)
         style {
             if (bold) property("font-weight", "bold")
             if (colored) backgroundColor(hsl(h, 100, 80))

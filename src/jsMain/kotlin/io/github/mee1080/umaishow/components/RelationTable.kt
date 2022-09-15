@@ -27,14 +27,17 @@ import org.jetbrains.compose.web.dom.*
 @Composable
 fun RelationTable(model: ViewModel) {
     Div {
-        Table {
+        Table({
+            classes(
+                *model.rowHideIndices.map { AppStyleSheet.hideRow[it] }.toTypedArray(),
+                *model.columnHideIndices.map { AppStyleSheet.hideColumn[it] }.toTypedArray(),
+            )
+        }) {
             Tr {
-                if (model.childSelected) {
-                    Th {
-                        Span({
-                            classes(AppStyleSheet.verticalHeader)
-                        }) { Text("所持") }
-                    }
+                Th {
+                    Span({
+                        classes(AppStyleSheet.verticalHeader)
+                    }) { Text("所持") }
                 }
                 Th({
                     classes(AppStyleSheet.clickable)
@@ -49,7 +52,7 @@ fun RelationTable(model: ViewModel) {
                     }
                 }
                 model.charaList.forEachIndexed { index, name ->
-                    Th {
+                    Th({ classes(AppStyleSheet.column[index]) }) {
                         Span({
                             classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
                             onClickOrTouch { model.sort(index) }
@@ -63,24 +66,24 @@ fun RelationTable(model: ViewModel) {
                     }) { Text("合計") }
                 }
             }
-            model.relationTable.forEach { (name, parent, grandParent) ->
-                Tr {
-                    if (model.childSelected) {
-                        Td {
-                            CheckboxInput(model.ownedChara[name] ?: false) {
-                                onChange { model.updateOwnedChara(name, it.value) }
-                            }
+            model.relationTable.forEach { (target, parent, grandParent) ->
+                val (rowIndex, name) = target
+                Tr({ classes(AppStyleSheet.row[rowIndex]) }) {
+                    Td {
+                        CheckboxInput(model.ownedChara[name] ?: false) {
+                            onChange { model.updateOwnedChara(name, it.value) }
                         }
                     }
                     Th({ classes(AppStyleSheet.horizontalHeader) }) { Text(name) }
                     if (model.childSelected) {
-                        RelationColumn(parent, true)
+                        RelationColumn(parent, "child", true)
                     }
-                    grandParent.forEachIndexed { index, value ->
+                    grandParent.forEachIndexed { columnIndex, value ->
                         RelationColumn(
                             value,
+                            AppStyleSheet.column[columnIndex],
                             false,
-                            index < grandParent.lastIndex
+                            columnIndex < grandParent.lastIndex
                         )
                     }
                 }

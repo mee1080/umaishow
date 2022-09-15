@@ -27,6 +27,7 @@ import org.jetbrains.compose.web.dom.Option
 import org.jetbrains.compose.web.dom.Select
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLSelectElement
+import kotlin.math.min
 
 @Composable
 fun CharaSelect(

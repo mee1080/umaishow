@@ -18,12 +18,30 @@
  */
 package io.github.mee1080.umaishow.style
 
-import org.jetbrains.compose.web.css.StyleSheet
-import org.jetbrains.compose.web.css.em
-import org.jetbrains.compose.web.css.height
-import org.jetbrains.compose.web.css.width
+import io.github.mee1080.umaishow.data.Store
+import org.jetbrains.compose.web.css.*
 
 object AppStyleSheet : StyleSheet() {
+
+    val row = Array(Store.charaList.size) { "row-$it" }
+
+    val hideRow = Array(Store.charaList.size) { "hide-row-$it" }
+
+    val column = Array(Store.charaList.size) { "column-$it" }
+
+    val hideColumn = Array(Store.charaList.size) { "hide-column-$it" }
+
+    init {
+        for (i in Store.charaList.indices) {
+            ".${hideRow[i]} .${row[i]}" style {
+                display(DisplayStyle.None)
+            }
+            ".${hideColumn[i]} .${column[i]}" style {
+                display(DisplayStyle.None)
+            }
+        }
+    }
+
     val verticalHeader by style {
         property("writing-mode", "vertical-rl")
         property("text-align", "right")

@@ -279,12 +279,12 @@ class ViewModel(store: Store) {
         calcRate()
     }
 
-    val relationTable: List<Triple<String, Int, List<Int>>>
+    val relationTable: List<Triple<Pair<Int, String>, Int, List<Int>>>
         get() {
             var list = if (childSelected) charaList.mapIndexed { index, name ->
-                Triple(name, Store.parent(child, index), Store.grandParentList(child, index))
+                Triple(index to name, Store.parent(child, index), Store.grandParentList(child, index))
             } else charaList.mapIndexed { index, name ->
-                Triple(name, 0, Store.parentList(index))
+                Triple(index to name, 0, Store.parentList(index))
             }
             list = list.map {
                 Triple(it.first, it.second, it.third + it.third.sum())
@@ -301,6 +301,42 @@ class ViewModel(store: Store) {
 
     fun sort(key: Int) {
         sortKey = key
+    }
+
+    enum class FilterMode {
+        NONE, OWNED,
+    }
+
+    var rowFilterMode by mutableStateOf(FilterMode.NONE)
+        private set
+
+    fun updateRowFilterMode(value: FilterMode) {
+        rowFilterMode = value
+    }
+
+    private fun rowFilterCheck(name: String) = when (rowFilterMode) {
+        FilterMode.NONE -> true
+        FilterMode.OWNED -> ownedChara[name] ?: false
+    }
+
+    val rowHideIndices get() = charaList.mapIndexedNotNull { index, name ->
+        if (rowFilterCheck(name)) null else index
+    }
+
+    var columnFilterMode by mutableStateOf(FilterMode.NONE)
+        private set
+
+    fun updateColumnFilterMode(value: FilterMode) {
+        columnFilterMode = value
+    }
+
+    private fun columnFilterCheck(name: String) = when (columnFilterMode) {
+        FilterMode.NONE -> true
+        FilterMode.OWNED -> ownedChara[name] ?: false
+    }
+
+    val columnHideIndices get() = charaList.mapIndexedNotNull { index, name ->
+        if (columnFilterCheck(name)) null else index
     }
 
     enum class Type(private val display: String) {

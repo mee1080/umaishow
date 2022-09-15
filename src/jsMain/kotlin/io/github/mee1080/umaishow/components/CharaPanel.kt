@@ -94,4 +94,22 @@ fun CharaPanel(model: ViewModel) {
             }
         }
     }
+    Div {
+        Text("行表示対象")
+        LabeledRadio("rowFilterMode", "0", "全て", model.rowFilterMode == ViewModel.FilterMode.NONE) {
+            model.updateRowFilterMode(ViewModel.FilterMode.NONE)
+        }
+        LabeledRadio("rowFilterMode", "1", "所持のみ", model.rowFilterMode == ViewModel.FilterMode.OWNED) {
+            model.updateRowFilterMode(ViewModel.FilterMode.OWNED)
+        }
+    }
+    Div {
+        Text("列表示対象")
+        LabeledRadio("columnFilterMode", "0", "全て", model.columnFilterMode == ViewModel.FilterMode.NONE) {
+            model.updateColumnFilterMode(ViewModel.FilterMode.NONE)
+        }
+        LabeledRadio("columnFilterMode", "1", "所持のみ", model.columnFilterMode == ViewModel.FilterMode.OWNED) {
+            model.updateColumnFilterMode(ViewModel.FilterMode.OWNED)
+        }
+    }
 }
