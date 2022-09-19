@@ -19,8 +19,11 @@
 package io.github.mee1080.umaishow.components
 
 import androidx.compose.runtime.Composable
+import io.github.mee1080.umaishow.components.mwc.MwcDialog
+import io.github.mee1080.umaishow.components.mwc.open
 import io.github.mee1080.umaishow.onClickOrTouch
 import io.github.mee1080.umaishow.vm.ViewModel
+import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.color
@@ -102,6 +105,32 @@ fun CharaPanel(model: ViewModel) {
         LabeledRadio("rowFilterMode", "1", "所持のみ", model.rowFilterMode == ViewModel.FilterMode.OWNED) {
             model.updateRowFilterMode(ViewModel.FilterMode.OWNED)
         }
+        LabeledRadio("rowFilterMode", "2", "カスタム", model.rowFilterMode == ViewModel.FilterMode.CUSTOM) {
+            model.updateRowFilterMode(ViewModel.FilterMode.CUSTOM)
+        }
+        Button({
+            if (model.rowFilterMode != ViewModel.FilterMode.CUSTOM) disabled()
+            onClick {
+                model.showRowCustomFilterDialog = true
+            }
+        }) {
+            Text("設定")
+        }
+        MwcDialog(
+            onPrimaryButton = { model.showRowCustomFilterDialog = false },
+            attrs = {
+                if (model.showRowCustomFilterDialog) open()
+                onClose { model.showRowCustomFilterDialog = false }
+            }
+        ) {
+            model.charaList.forEach { name ->
+                Div {
+                    LabeledCheckbox(name, name, model.rowCustomFilter[name] ?: false) {
+                        model.updateRowCustomFilter(name, it)
+                    }
+                }
+            }
+        }
     }
     Div {
         Text("列表示対象")
@@ -110,6 +139,32 @@ fun CharaPanel(model: ViewModel) {
         }
         LabeledRadio("columnFilterMode", "1", "所持のみ", model.columnFilterMode == ViewModel.FilterMode.OWNED) {
             model.updateColumnFilterMode(ViewModel.FilterMode.OWNED)
+        }
+        LabeledRadio("columnFilterMode", "2", "カスタム", model.columnFilterMode == ViewModel.FilterMode.CUSTOM) {
+            model.updateColumnFilterMode(ViewModel.FilterMode.CUSTOM)
+        }
+        Button({
+            if (model.columnFilterMode != ViewModel.FilterMode.CUSTOM) disabled()
+            onClick {
+                model.showColumnCustomFilterDialog = true
+            }
+        }) {
+            Text("設定")
+        }
+        MwcDialog(
+            onPrimaryButton = { model.showColumnCustomFilterDialog = false },
+            attrs = {
+                if (model.showColumnCustomFilterDialog) open()
+                onClose { model.showColumnCustomFilterDialog = false }
+            }
+        ) {
+            model.charaList.forEach { name ->
+                Div {
+                    LabeledCheckbox(name, name, model.columnCustomFilter[name] ?: false) {
+                        model.updateColumnCustomFilter(name, it)
+                    }
+                }
+            }
         }
     }
 }

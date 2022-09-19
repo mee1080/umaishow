@@ -23,6 +23,20 @@ object Preferences {
     fun loadOwnedChara() =
         load(KEY_OWNED_CHARA)?.split(",") ?: listOf("サクラバクシンオー", "ハルウララ", "ダイワスカーレット", "ウオッカ", "ゴールドシップ")
 
+    private const val KEY_ROW_CUSTOM_FILTER = "RowCustomFilter"
+
+    fun saveRowCustomFilter(value: Collection<String>) = save(KEY_ROW_CUSTOM_FILTER, value.joinToString(","))
+
+    fun loadRowCustomFilter() =
+        load(KEY_ROW_CUSTOM_FILTER)?.split(",") ?: listOf()
+
+    private const val KEY_COLUMN_CUSTOM_FILTER = "ColumnCustomFilter"
+
+    fun saveColumnCustomFilter(value: Collection<String>) = save(KEY_COLUMN_CUSTOM_FILTER, value.joinToString(","))
+
+    fun loadColumnCustomFilter() =
+        load(KEY_COLUMN_CUSTOM_FILTER)?.split(",") ?: listOf()
+
     private fun save(key: String, value: String) = localStorage.setItem(key, value)
 
     private fun load(key: String) = localStorage.getItem(key)

@@ -304,7 +304,7 @@ class ViewModel(store: Store) {
     }
 
     enum class FilterMode {
-        NONE, OWNED,
+        NONE, OWNED, CUSTOM,
     }
 
     var rowFilterMode by mutableStateOf(FilterMode.NONE)
@@ -314,14 +314,30 @@ class ViewModel(store: Store) {
         rowFilterMode = value
     }
 
+    var showRowCustomFilterDialog by mutableStateOf(false)
+
+    val rowCustomFilter: SnapshotStateMap<String, Boolean>
+
+    init {
+        val saved = Preferences.loadRowCustomFilter()
+        rowCustomFilter = mutableStateMapOf(*(charaList.map { it to saved.contains(it) }).toTypedArray())
+    }
+
+    fun updateRowCustomFilter(name: String, value: Boolean) {
+        rowCustomFilter[name] = value
+        Preferences.saveRowCustomFilter(rowCustomFilter.filterValues { it }.keys)
+    }
+
     private fun rowFilterCheck(name: String) = when (rowFilterMode) {
         FilterMode.NONE -> true
         FilterMode.OWNED -> ownedChara[name] ?: false
+        FilterMode.CUSTOM -> rowCustomFilter[name] ?: false
     }
 
-    val rowHideIndices get() = charaList.mapIndexedNotNull { index, name ->
-        if (rowFilterCheck(name)) null else index
-    }
+    val rowHideIndices
+        get() = charaList.mapIndexedNotNull { index, name ->
+            if (rowFilterCheck(name)) null else index
+        }
 
     var columnFilterMode by mutableStateOf(FilterMode.NONE)
         private set
@@ -330,14 +346,30 @@ class ViewModel(store: Store) {
         columnFilterMode = value
     }
 
+    var showColumnCustomFilterDialog by mutableStateOf(false)
+
+    val columnCustomFilter: SnapshotStateMap<String, Boolean>
+
+    init {
+        val saved = Preferences.loadColumnCustomFilter()
+        columnCustomFilter = mutableStateMapOf(*(charaList.map { it to saved.contains(it) }).toTypedArray())
+    }
+
+    fun updateColumnCustomFilter(name: String, value: Boolean) {
+        columnCustomFilter[name] = value
+        Preferences.saveColumnCustomFilter(columnCustomFilter.filterValues { it }.keys)
+    }
+
     private fun columnFilterCheck(name: String) = when (columnFilterMode) {
         FilterMode.NONE -> true
         FilterMode.OWNED -> ownedChara[name] ?: false
+        FilterMode.CUSTOM -> columnCustomFilter[name] ?: false
     }
 
-    val columnHideIndices get() = charaList.mapIndexedNotNull { index, name ->
-        if (columnFilterCheck(name)) null else index
-    }
+    val columnHideIndices
+        get() = charaList.mapIndexedNotNull { index, name ->
+            if (columnFilterCheck(name)) null else index
+        }
 
     enum class Type(private val display: String) {
         Ground("バ場"), Distance("距離"), RunningStyle("脚質");

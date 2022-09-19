@@ -24,6 +24,7 @@ kotlin {
             dependencies {
                 implementation(compose.web.core)
                 implementation(compose.runtime)
+                implementation(npm("@material/mwc-dialog", "0.25.3"))
             }
         }
     }
