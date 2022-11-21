@@ -27,15 +27,17 @@ object AppStyleSheet : StyleSheet() {
 
     val hideRow = Array(Store.charaList.size) { "hide-row-$it" }
 
-    val column = Array(Store.charaList.size) { "column-$it" }
+    val column = Array(Store.charaList.size + 2) { "column-$it" }
 
-    val hideColumn = Array(Store.charaList.size) { "hide-column-$it" }
+    val hideColumn = Array(Store.charaList.size + 2) { "hide-column-$it" }
 
     init {
         for (i in Store.charaList.indices) {
             ".${hideRow[i]} .${row[i]}" style {
                 display(DisplayStyle.None)
             }
+        }
+        for (i in 0..Store.charaList.lastIndex + 2) {
             ".${hideColumn[i]} .${column[i]}" style {
                 display(DisplayStyle.None)
             }

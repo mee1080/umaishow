@@ -105,7 +105,10 @@ fun CharaPanel(model: ViewModel) {
         LabeledRadio("rowFilterMode", "1", "所持のみ", model.rowFilterMode == ViewModel.FilterMode.OWNED) {
             model.updateRowFilterMode(ViewModel.FilterMode.OWNED)
         }
-        LabeledRadio("rowFilterMode", "2", "カスタム", model.rowFilterMode == ViewModel.FilterMode.CUSTOM) {
+        LabeledRadio("rowFilterMode", "2", "非所持のみ", model.rowFilterMode == ViewModel.FilterMode.NOT_OWNED) {
+            model.updateRowFilterMode(ViewModel.FilterMode.NOT_OWNED)
+        }
+        LabeledRadio("rowFilterMode", "3", "カスタム", model.rowFilterMode == ViewModel.FilterMode.CUSTOM) {
             model.updateRowFilterMode(ViewModel.FilterMode.CUSTOM)
         }
         Button({
@@ -118,6 +121,8 @@ fun CharaPanel(model: ViewModel) {
         }
         MwcDialog(
             onPrimaryButton = { model.showRowCustomFilterDialog = false },
+            onSecondaryButton = { model.updateRowCustomFilterAll() },
+            secondaryButtonLabel = { Text("全てON/OFF") },
             attrs = {
                 if (model.showRowCustomFilterDialog) open()
                 onClose { model.showRowCustomFilterDialog = false }
@@ -140,7 +145,10 @@ fun CharaPanel(model: ViewModel) {
         LabeledRadio("columnFilterMode", "1", "所持のみ", model.columnFilterMode == ViewModel.FilterMode.OWNED) {
             model.updateColumnFilterMode(ViewModel.FilterMode.OWNED)
         }
-        LabeledRadio("columnFilterMode", "2", "カスタム", model.columnFilterMode == ViewModel.FilterMode.CUSTOM) {
+        LabeledRadio("columnFilterMode", "2", "非所持のみ", model.columnFilterMode == ViewModel.FilterMode.NOT_OWNED) {
+            model.updateColumnFilterMode(ViewModel.FilterMode.NOT_OWNED)
+        }
+        LabeledRadio("columnFilterMode", "3", "カスタム", model.columnFilterMode == ViewModel.FilterMode.CUSTOM) {
             model.updateColumnFilterMode(ViewModel.FilterMode.CUSTOM)
         }
         Button({
@@ -153,12 +161,14 @@ fun CharaPanel(model: ViewModel) {
         }
         MwcDialog(
             onPrimaryButton = { model.showColumnCustomFilterDialog = false },
+            onSecondaryButton = { model.updateColumnCustomFilterAll() },
+            secondaryButtonLabel = { Text("全てON/OFF") },
             attrs = {
                 if (model.showColumnCustomFilterDialog) open()
                 onClose { model.showColumnCustomFilterDialog = false }
             }
         ) {
-            model.charaList.forEach { name ->
+            model.columnList.forEach { name ->
                 Div {
                     LabeledCheckbox(name, name, model.columnCustomFilter[name] ?: false) {
                         model.updateColumnCustomFilter(name, it)

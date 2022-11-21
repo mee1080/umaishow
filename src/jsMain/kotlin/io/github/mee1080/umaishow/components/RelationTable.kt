@@ -34,7 +34,7 @@ fun RelationTable(model: ViewModel) {
             )
         }) {
             Tr {
-                Th {
+                Th({ classes(AppStyleSheet.column[model.ownedIndex]) }) {
                     Span({
                         classes(AppStyleSheet.verticalHeader)
                     }) { Text("所持") }
@@ -59,7 +59,7 @@ fun RelationTable(model: ViewModel) {
                         }) { Text(name) }
                     }
                 }
-                Th {
+                Th({ classes(AppStyleSheet.column[model.totalIndex]) }) {
                     Span({
                         classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
                         onClickOrTouch { model.sort(model.charaList.size) }
@@ -69,7 +69,7 @@ fun RelationTable(model: ViewModel) {
             model.relationTable.forEach { (target, parent, grandParent) ->
                 val (rowIndex, name) = target
                 Tr({ classes(AppStyleSheet.row[rowIndex]) }) {
-                    Td {
+                    Td({ classes(AppStyleSheet.column[model.ownedIndex]) }) {
                         CheckboxInput(model.ownedChara[name] ?: false) {
                             onChange { model.updateOwnedChara(name, it.value) }
                         }

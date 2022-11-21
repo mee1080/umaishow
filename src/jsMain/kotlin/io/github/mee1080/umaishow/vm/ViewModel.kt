@@ -304,7 +304,7 @@ class ViewModel(store: Store) {
     }
 
     enum class FilterMode {
-        NONE, OWNED, CUSTOM,
+        NONE, OWNED, NOT_OWNED, CUSTOM,
     }
 
     var rowFilterMode by mutableStateOf(FilterMode.NONE)
@@ -328,9 +328,16 @@ class ViewModel(store: Store) {
         Preferences.saveRowCustomFilter(rowCustomFilter.filterValues { it }.keys)
     }
 
+    fun updateRowCustomFilterAll() {
+        val value = !rowCustomFilter.values.any { it }
+        rowCustomFilter.putAll(rowCustomFilter.mapValues { value })
+        Preferences.saveRowCustomFilter(rowCustomFilter.filterValues { it }.keys)
+    }
+
     private fun rowFilterCheck(name: String) = when (rowFilterMode) {
         FilterMode.NONE -> true
         FilterMode.OWNED -> ownedChara[name] ?: false
+        FilterMode.NOT_OWNED -> !(ownedChara[name] ?: false)
         FilterMode.CUSTOM -> rowCustomFilter[name] ?: false
     }
 
@@ -350,9 +357,20 @@ class ViewModel(store: Store) {
 
     val columnCustomFilter: SnapshotStateMap<String, Boolean>
 
+    val columnList = charaList + listOf("合計", "所持")
+
+    val ownedIndex = columnList.lastIndex
+
+    val totalIndex = columnList.lastIndex - 1
+
     init {
         val saved = Preferences.loadColumnCustomFilter()
-        columnCustomFilter = mutableStateMapOf(*(charaList.map { it to saved.contains(it) }).toTypedArray())
+        columnCustomFilter = mutableStateMapOf(
+            *(charaList.map { it to saved.contains(it) }).toTypedArray() + arrayOf(
+                "合計" to true,
+                "所持" to true
+            )
+        )
     }
 
     fun updateColumnCustomFilter(name: String, value: Boolean) {
@@ -360,14 +378,21 @@ class ViewModel(store: Store) {
         Preferences.saveColumnCustomFilter(columnCustomFilter.filterValues { it }.keys)
     }
 
+    fun updateColumnCustomFilterAll() {
+        val value = !columnCustomFilter.values.any { it }
+        columnCustomFilter.putAll(columnCustomFilter.mapValues { value })
+        Preferences.saveRowCustomFilter(columnCustomFilter.filterValues { it }.keys)
+    }
+
     private fun columnFilterCheck(name: String) = when (columnFilterMode) {
         FilterMode.NONE -> true
         FilterMode.OWNED -> ownedChara[name] ?: false
+        FilterMode.NOT_OWNED -> !(ownedChara[name] ?: false)
         FilterMode.CUSTOM -> columnCustomFilter[name] ?: false
     }
 
     val columnHideIndices
-        get() = charaList.mapIndexedNotNull { index, name ->
+        get() = columnList.mapIndexedNotNull { index, name ->
             if (columnFilterCheck(name)) null else index
         }
 
