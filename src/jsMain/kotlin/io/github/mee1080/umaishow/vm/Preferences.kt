@@ -37,6 +37,20 @@ object Preferences {
     fun loadColumnCustomFilter() =
         load(KEY_COLUMN_CUSTOM_FILTER)?.split(",") ?: listOf()
 
+    private const val KEY_ROW_RELATION_FILTER = "RowRelationFilter"
+
+    fun loadRowRelationFilter() =
+        load(KEY_ROW_RELATION_FILTER)?.split(",")?.mapNotNull { it.toIntOrNull() } ?: listOf(-1)
+
+    fun saveRowRelationFilter(value: Collection<Int>) = save(KEY_ROW_RELATION_FILTER, value.joinToString(","))
+
+    private const val KEY_COLUMN_RELATION_FILTER = "ColumnRelationFilter"
+
+    fun loadColumnRelationFilter() =
+        load(KEY_COLUMN_RELATION_FILTER)?.split(",")?.mapNotNull { it.toIntOrNull() } ?: listOf(-1)
+
+    fun saveColumnRelationFilter(value: Collection<Int>) = save(KEY_COLUMN_RELATION_FILTER, value.joinToString(","))
+
     private fun save(key: String, value: String) = localStorage.setItem(key, value)
 
     private fun load(key: String) = localStorage.getItem(key)

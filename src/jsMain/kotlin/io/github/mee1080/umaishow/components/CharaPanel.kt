@@ -19,8 +19,7 @@
 package io.github.mee1080.umaishow.components
 
 import androidx.compose.runtime.Composable
-import io.github.mee1080.umaishow.components.mwc.MwcDialog
-import io.github.mee1080.umaishow.components.mwc.open
+import io.github.mee1080.umaishow.components.mwc.*
 import io.github.mee1080.umaishow.onClickOrTouch
 import io.github.mee1080.umaishow.vm.ViewModel
 import org.jetbrains.compose.web.attributes.disabled
@@ -119,6 +118,17 @@ fun CharaPanel(model: ViewModel) {
         }) {
             Text("設定")
         }
+        LabeledRadio("rowFilterMode", "4", "要素", model.rowFilterMode == ViewModel.FilterMode.RELATION) {
+            model.updateRowFilterMode(ViewModel.FilterMode.RELATION)
+        }
+        Button({
+            if (model.rowFilterMode != ViewModel.FilterMode.RELATION) disabled()
+            onClick {
+                model.showRowRelationFilterDialog = true
+            }
+        }) {
+            Text("設定")
+        }
         MwcDialog(
             onPrimaryButton = { model.showRowCustomFilterDialog = false },
             onSecondaryButton = { model.updateRowCustomFilterAll() },
@@ -132,6 +142,41 @@ fun CharaPanel(model: ViewModel) {
                 Div {
                     LabeledCheckbox(name, name, model.rowCustomFilter[name] ?: false) {
                         model.updateRowCustomFilter(name, it)
+                    }
+                }
+            }
+        }
+        MwcDialog(
+            onPrimaryButton = { model.showRowRelationFilterDialog = false },
+            attrs = {
+                if (model.showRowRelationFilterDialog) open()
+                onClose { model.showRowRelationFilterDialog = false }
+            }
+        ) {
+            val deleteEnabled = model.rowRelationFilter.size >= 2
+            model.rowRelationFilter.forEachIndexed { index, value ->
+                Div({ style { display(DisplayStyle.Flex) } }) {
+                    if (deleteEnabled) {
+                        MwcButton({
+                            outlined()
+                            dense()
+                            onClick { model.deleteRowRelationFilter(index) }
+                        }) {
+                            Text("削除")
+                        }
+                    }
+                    CharaSelect("", model.relationFilter, value) {
+                        model.setRowRelationFilter(index, it)
+                    }
+                }
+            }
+            if (model.rowRelationFilter.last() >= 0) {
+                Div {
+                    MwcButton({
+                        raised()
+                        onClick { model.addRowRelationFilter() }
+                    }) {
+                        Text("追加")
                     }
                 }
             }
@@ -159,6 +204,17 @@ fun CharaPanel(model: ViewModel) {
         }) {
             Text("設定")
         }
+        LabeledRadio("columnFilterMode", "4", "要素", model.columnFilterMode == ViewModel.FilterMode.RELATION) {
+            model.updateColumnFilterMode(ViewModel.FilterMode.RELATION)
+        }
+        Button({
+            if (model.columnFilterMode != ViewModel.FilterMode.RELATION) disabled()
+            onClick {
+                model.showColumnRelationFilterDialog = true
+            }
+        }) {
+            Text("設定")
+        }
         MwcDialog(
             onPrimaryButton = { model.showColumnCustomFilterDialog = false },
             onSecondaryButton = { model.updateColumnCustomFilterAll() },
@@ -172,6 +228,41 @@ fun CharaPanel(model: ViewModel) {
                 Div {
                     LabeledCheckbox(name, name, model.columnCustomFilter[name] ?: false) {
                         model.updateColumnCustomFilter(name, it)
+                    }
+                }
+            }
+        }
+        MwcDialog(
+            onPrimaryButton = { model.showColumnRelationFilterDialog = false },
+            attrs = {
+                if (model.showColumnRelationFilterDialog) open()
+                onClose { model.showColumnRelationFilterDialog = false }
+            }
+        ) {
+            val deleteEnabled = model.columnRelationFilter.size >= 2
+            model.columnRelationFilter.forEachIndexed { index, value ->
+                Div({ style { display(DisplayStyle.Flex) } }) {
+                    if (deleteEnabled) {
+                        MwcButton({
+                            outlined()
+                            dense()
+                            onClick { model.deleteColumnRelationFilter(index) }
+                        }) {
+                            Text("削除")
+                        }
+                    }
+                    CharaSelect("", model.relationFilter, value) {
+                        model.setColumnRelationFilter(index, it)
+                    }
+                }
+            }
+            if (model.columnRelationFilter.last() >= 0) {
+                Div {
+                    MwcButton({
+                        raised()
+                        onClick { model.addColumnRelationFilter() }
+                    }) {
+                        Text("追加")
                     }
                 }
             }

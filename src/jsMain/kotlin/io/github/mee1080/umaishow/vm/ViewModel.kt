@@ -18,10 +18,8 @@
  */
 package io.github.mee1080.umaishow.vm
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import io.github.mee1080.umaishow.data.RelationInfo
 import io.github.mee1080.umaishow.data.Store
@@ -330,7 +328,7 @@ class ViewModel(store: Store) {
     }
 
     enum class FilterMode {
-        NONE, OWNED, NOT_OWNED, CUSTOM,
+        NONE, OWNED, NOT_OWNED, CUSTOM, RELATION,
     }
 
     var rowFilterMode by mutableStateOf(FilterMode.NONE)
@@ -360,16 +358,43 @@ class ViewModel(store: Store) {
         Preferences.saveRowCustomFilter(rowCustomFilter.filterValues { it }.keys)
     }
 
-    private fun rowFilterCheck(name: String) = when (rowFilterMode) {
+    val relationFilter = listOf(-1 to "未設定") + RelationInfo.filters
+
+    var showRowRelationFilterDialog by mutableStateOf(false)
+
+    val rowRelationFilter: SnapshotStateList<Int>
+
+    init {
+        val saved = Preferences.loadRowRelationFilter()
+        rowRelationFilter = mutableStateListOf(*saved.toTypedArray())
+    }
+
+    fun addRowRelationFilter() {
+        rowRelationFilter.add(-1)
+        Preferences.saveRowRelationFilter(rowRelationFilter.toList())
+    }
+
+    fun deleteRowRelationFilter(index: Int) {
+        rowRelationFilter.removeAt(index)
+        Preferences.saveRowRelationFilter(rowRelationFilter.toList())
+    }
+
+    fun setRowRelationFilter(index: Int, value: Int) {
+        rowRelationFilter[index] = value
+        Preferences.saveRowRelationFilter(rowRelationFilter.toList())
+    }
+
+    private fun rowFilterCheck(index: Int, name: String) = when (rowFilterMode) {
         FilterMode.NONE -> true
         FilterMode.OWNED -> ownedChara[name] ?: false
         FilterMode.NOT_OWNED -> !(ownedChara[name] ?: false)
         FilterMode.CUSTOM -> rowCustomFilter[name] ?: false
+        FilterMode.RELATION -> rowRelationFilter.all { it < 0 || charaRelation[index].contains(it) }
     }
 
     val rowHideIndices
         get() = charaNameList.mapIndexedNotNull { index, name ->
-            if (rowFilterCheck(name)) null else index
+            if (rowFilterCheck(index, name)) null else index
         }
 
     var columnFilterMode by mutableStateOf(FilterMode.NONE)
@@ -413,16 +438,46 @@ class ViewModel(store: Store) {
         Preferences.saveRowCustomFilter(columnCustomFilter.filterValues { it }.keys)
     }
 
-    private fun columnFilterCheck(name: String) = when (columnFilterMode) {
+    var showColumnRelationFilterDialog by mutableStateOf(false)
+
+    val columnRelationFilter: SnapshotStateList<Int>
+
+    init {
+        val saved = Preferences.loadColumnRelationFilter()
+        columnRelationFilter = mutableStateListOf(*saved.toTypedArray())
+    }
+
+    fun addColumnRelationFilter() {
+        columnRelationFilter.add(-1)
+        Preferences.saveColumnRelationFilter(columnRelationFilter.toList())
+    }
+
+    fun deleteColumnRelationFilter(index: Int) {
+        columnRelationFilter.removeAt(index)
+        Preferences.saveColumnRelationFilter(columnRelationFilter.toList())
+    }
+
+    fun setColumnRelationFilter(index: Int, value: Int) {
+        columnRelationFilter[index] = value
+        Preferences.saveColumnRelationFilter(columnRelationFilter.toList())
+    }
+
+    private fun columnFilterCheck(index: Int, name: String) = when (columnFilterMode) {
         FilterMode.NONE -> true
         FilterMode.OWNED -> ownedChara[name] ?: false
         FilterMode.NOT_OWNED -> !(ownedChara[name] ?: false)
         FilterMode.CUSTOM -> columnCustomFilter[name] ?: false
+        FilterMode.RELATION -> {
+            val relation = charaRelation.getOrNull(index)
+            relation == null || columnRelationFilter.all {
+                it < 0 || relation.contains(it)
+            }
+        }
     }
 
     val columnHideIndices
         get() = columnList.mapIndexedNotNull { index, name ->
-            if (columnFilterCheck(name)) null else index
+            if (columnFilterCheck(index, name)) null else index
         }
 
     enum class Type(private val display: String) {
