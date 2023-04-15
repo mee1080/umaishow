@@ -19,13 +19,31 @@
 package io.github.mee1080.umaishow.data
 
 object Store {
-    val charaList = Source.chara
+    val charaList = Source.chara.map { it.first }
 
-    val charaRange = charaList.indices
+    private val charaRange = charaList.indices
 
-    val parentMap = Source.parent
+    private val parentRelation = List(charaList.size) { child ->
+        val childSet = Source.chara[child].second
+        List(charaList.size) { parent ->
+            if (child == parent) emptySet() else childSet.intersect(Source.chara[parent].second)
+        }
+    }
 
-    private val grandParentMap = Source.grandParent
+    private val parentMap = parentRelation.map { sets ->
+        sets.map { set ->
+            set.sumOf { Source.relation[it]!! }
+        }
+    }
+
+    private val grandParentMap = parentRelation.mapIndexed { child, sets ->
+        sets.mapIndexed { parent, set ->
+            List(charaList.size) { grand ->
+                if (child == grand || parent == grand) 0 else set.intersect(Source.chara[grand].second)
+                    .sumOf { Source.relation[it]!! }
+            }
+        }
+    }
 
     fun parentList(index: Int) = parentMap[index]
 
@@ -33,10 +51,6 @@ object Store {
         if (index1 in charaRange && index2 in charaRange) {
             parentMap[index1][index2]
         } else 0
-
-    fun grandParentListList(index1: Int): List<List<Int>> {
-        return grandParentMap[index1]
-    }
 
     fun grandParentList(index1: Int, index2: Int): List<Int> {
         return grandParentMap[index1][index2]
