@@ -19,6 +19,8 @@
 package io.github.mee1080.umaishow.components
 
 import androidx.compose.runtime.Composable
+import io.github.mee1080.umaishow.components.mwc.MwcDialog
+import io.github.mee1080.umaishow.components.mwc.open
 import io.github.mee1080.umaishow.onClickOrTouch
 import io.github.mee1080.umaishow.style.AppStyleSheet
 import io.github.mee1080.umaishow.vm.ViewModel
@@ -51,7 +53,7 @@ fun RelationTable(model: ViewModel) {
                         }) { Text("親相性") }
                     }
                 }
-                model.charaList.forEachIndexed { index, name ->
+                model.charaNameList.forEachIndexed { index, name ->
                     Th({ classes(AppStyleSheet.column[index]) }) {
                         Span({
                             classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
@@ -62,30 +64,57 @@ fun RelationTable(model: ViewModel) {
                 Th({ classes(AppStyleSheet.column[model.totalIndex]) }) {
                     Span({
                         classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
-                        onClickOrTouch { model.sort(model.charaList.size) }
+                        onClickOrTouch { model.sort(model.charaNameList.size) }
                     }) { Text("合計") }
                 }
+                Th({ classes(AppStyleSheet.column[model.relationIndex]) }) {
+                    Span({ classes(AppStyleSheet.verticalHeader) }) { Text("要素") }
+                }
+                Th {
+                    Span({ classes(AppStyleSheet.verticalHeader) }) { Text("名前") }
+                }
             }
-            model.relationTable.forEach { (target, parent, grandParent) ->
-                val (rowIndex, name) = target
-                Tr({ classes(AppStyleSheet.row[rowIndex]) }) {
+            model.relationTable.forEach { entry ->
+                Tr({ classes(AppStyleSheet.row[entry.index]) }) {
                     Td({ classes(AppStyleSheet.column[model.ownedIndex]) }) {
-                        CheckboxInput(model.ownedChara[name] ?: false) {
-                            onChange { model.updateOwnedChara(name, it.value) }
+                        CheckboxInput(model.ownedChara[entry.name] ?: false) {
+                            onChange { model.updateOwnedChara(entry.name, it.value) }
                         }
                     }
-                    Th({ classes(AppStyleSheet.horizontalHeader) }) { Text(name) }
+                    Th({ classes(AppStyleSheet.horizontalHeader) }) { Text(entry.name) }
                     if (model.childSelected) {
-                        RelationColumn(parent, "child", true)
+                        RelationColumn(entry.parentRelation, "child", true)
                     }
-                    grandParent.forEachIndexed { columnIndex, value ->
-                        RelationColumn(
-                            value,
-                            AppStyleSheet.column[columnIndex],
-                            false,
-                            columnIndex < grandParent.lastIndex
-                        )
+                    entry.relationList.forEachIndexed { columnIndex, value ->
+                        RelationColumn(value, AppStyleSheet.column[columnIndex], bold = false, colored = true)
                     }
+                    RelationColumn(entry.relationTotal, AppStyleSheet.column[model.totalIndex])
+                    Td({ classes(AppStyleSheet.column[model.relationIndex]) }) {
+                        Span({ classes(AppStyleSheet.relationColumn) }) {
+                            Text(entry.info)
+                            Button({
+                                onClick {
+                                    model.showRelationInfo(entry.index)
+                                }
+                            }) {
+                                Text("その他")
+                            }
+                        }
+                    }
+                    Th({ classes(AppStyleSheet.nameColumn) }) { Text(entry.name) }
+                }
+            }
+        }
+        MwcDialog(
+            onPrimaryButton = { model.displayRelationInfo = emptyList() },
+            attrs = {
+                if (model.displayRelationInfo.isNotEmpty()) open()
+                onClose { model.displayRelationInfo = emptyList() }
+            }
+        ) {
+            Div {
+                model.displayRelationInfo.forEach {
+                    Div { Text(it) }
                 }
             }
         }

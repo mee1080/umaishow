@@ -27,9 +27,9 @@ object AppStyleSheet : StyleSheet() {
 
     val hideRow = Array(Store.charaList.size) { "hide-row-$it" }
 
-    val column = Array(Store.charaList.size + 2) { "column-$it" }
+    val column = Array(Store.charaList.size + 3) { "column-$it" }
 
-    val hideColumn = Array(Store.charaList.size + 2) { "hide-column-$it" }
+    val hideColumn = Array(Store.charaList.size + 3) { "hide-column-$it" }
 
     init {
         for (i in Store.charaList.indices) {
@@ -52,11 +52,21 @@ object AppStyleSheet : StyleSheet() {
     }
 
     val horizontalHeader by style {
-        property("white-space", "nowrap")
+        whiteSpace("nowrap")
         property("text-align", "right")
     }
 
     val clickable by style {
         property("cursor", "pointer")
+    }
+
+    val relationColumn by style {
+        display(DisplayStyle.Flex)
+        whiteSpace("nowrap")
+    }
+
+    val nameColumn by style {
+        whiteSpace("nowrap")
+        textAlign("left")
     }
 }

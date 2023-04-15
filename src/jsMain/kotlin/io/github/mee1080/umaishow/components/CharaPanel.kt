@@ -128,7 +128,7 @@ fun CharaPanel(model: ViewModel) {
                 onClose { model.showRowCustomFilterDialog = false }
             }
         ) {
-            model.charaList.forEach { name ->
+            model.charaNameList.forEach { name ->
                 Div {
                     LabeledCheckbox(name, name, model.rowCustomFilter[name] ?: false) {
                         model.updateRowCustomFilter(name, it)

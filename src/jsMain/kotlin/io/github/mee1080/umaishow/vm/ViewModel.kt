@@ -23,12 +23,17 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import io.github.mee1080.umaishow.data.RelationInfo
 import io.github.mee1080.umaishow.data.Store
 import kotlin.math.min
 
 class ViewModel(store: Store) {
 
     val charaList = store.charaList
+
+    val charaNameList = store.charaNameList
+
+    val charaRelation = store.charaRelation
 
     val totalRelation get() = calcTotalRelation()
 
@@ -59,7 +64,7 @@ class ViewModel(store: Store) {
         Preferences.saveParentSortOrder(value)
     }
 
-    val indexedCharaList = charaList.mapIndexed { index, name -> index to name }
+    val indexedCharaList = charaNameList.mapIndexed { index, name -> index to name }
 
     val childList = listOf(-1 to "2世代相性") + indexedCharaList
 
@@ -199,7 +204,7 @@ class ViewModel(store: Store) {
 
     init {
         val saved = Preferences.loadOwnedChara()
-        ownedChara = mutableStateMapOf(*(charaList.map { it to saved.contains(it) }).toTypedArray())
+        ownedChara = mutableStateMapOf(*(charaNameList.map { it to saved.contains(it) }).toTypedArray())
     }
 
     fun updateOwnedChara(name: String, value: Boolean) {
@@ -223,7 +228,7 @@ class ViewModel(store: Store) {
         val p22List = if (parent22 == -1) targetList else listOf(parent22)
         var maxRelation = 0
         var maxCombination = listOf(parent1, parent2, parent11, parent12, parent21, parent22)
-        val checkedParent1 = BooleanArray(charaList.size) { false }
+        val checkedParent1 = BooleanArray(charaNameList.size) { false }
         p1List.forEach { p1Pair ->
             val p1 = p1Pair.first
             val p1Relation = p1Pair.second
@@ -233,14 +238,14 @@ class ViewModel(store: Store) {
                 val p2Relation = p2Pair.second
                 val parentsRelation = Store.parent(p1, p2)
                 if (p1Relation * 3 + p2Relation * 3 + parentsRelation > maxRelation) {
-                    val checkedParent11 = BooleanArray(charaList.size) { it == p1 }
+                    val checkedParent11 = BooleanArray(charaNameList.size) { it == p1 }
                     p11List.filter { it != p1 }.forEach { p11 ->
                         checkedParent11[p11] = true
                         val p11Relation = Store.grandParent(child, p1, p11)
                         p12List.filterNot { checkedParent11[it] }.forEach { p12 ->
                             val p12Relation = Store.grandParent(child, p1, p12)
                             if (p1Relation + p11Relation + p12Relation + p2Relation * 3 + parentsRelation > maxRelation) {
-                                val checkedParent21 = BooleanArray(charaList.size) { it == p2 }
+                                val checkedParent21 = BooleanArray(charaNameList.size) { it == p2 }
                                 p21List.filter { it != p2 }.forEach { p21 ->
                                     checkedParent21[p21] = true
                                     val p21Relation = Store.grandParent(child, p2, p21)
@@ -279,20 +284,41 @@ class ViewModel(store: Store) {
         calcRate()
     }
 
-    val relationTable: List<Triple<Pair<Int, String>, Int, List<Int>>>
+    class RelationTableEntry(
+        val index: Int,
+        val name: String,
+        val parentRelation: Int,
+        val relationList: List<Int>,
+        val info: String,
+    ) {
+        val relationTotal = relationList.sum()
+    }
+
+    val relationTable: List<RelationTableEntry>
         get() {
-            var list = if (childSelected) charaList.mapIndexed { index, name ->
-                Triple(index to name, Store.parent(child, index), Store.grandParentList(child, index))
-            } else charaList.mapIndexed { index, name ->
-                Triple(index to name, 0, Store.parentList(index))
-            }
-            list = list.map {
-                Triple(it.first, it.second, it.third + it.third.sum())
+            var list = if (childSelected) charaList.mapIndexed { index, chara ->
+                RelationTableEntry(
+                    index,
+                    chara.first,
+                    Store.parent(child, index),
+                    Store.grandParentList(child, index),
+                    RelationInfo.getShortString(chara.second),
+                )
+            } else charaList.mapIndexed { index, chara ->
+                RelationTableEntry(
+                    index,
+                    chara.first,
+                    0,
+                    Store.parentList(index),
+                    RelationInfo.getShortString(chara.second),
+                )
             }
             return when (sortKey) {
                 -2 -> list
-                -1 -> list.sortedByDescending { it.second }
-                else -> list.sortedByDescending { it.third[sortKey] }
+                -1 -> list.sortedByDescending { it.parentRelation }
+                else -> list.sortedByDescending {
+                    if (sortKey < it.relationList.size) it.relationList[sortKey] else it.relationTotal
+                }
             }
         }
 
@@ -320,7 +346,7 @@ class ViewModel(store: Store) {
 
     init {
         val saved = Preferences.loadRowCustomFilter()
-        rowCustomFilter = mutableStateMapOf(*(charaList.map { it to saved.contains(it) }).toTypedArray())
+        rowCustomFilter = mutableStateMapOf(*(charaNameList.map { it to saved.contains(it) }).toTypedArray())
     }
 
     fun updateRowCustomFilter(name: String, value: Boolean) {
@@ -342,7 +368,7 @@ class ViewModel(store: Store) {
     }
 
     val rowHideIndices
-        get() = charaList.mapIndexedNotNull { index, name ->
+        get() = charaNameList.mapIndexedNotNull { index, name ->
             if (rowFilterCheck(name)) null else index
         }
 
@@ -357,17 +383,20 @@ class ViewModel(store: Store) {
 
     val columnCustomFilter: SnapshotStateMap<String, Boolean>
 
-    val columnList = charaList + listOf("合計", "所持")
+    val columnList = charaNameList + listOf("合計", "要素", "所持")
 
     val ownedIndex = columnList.lastIndex
 
-    val totalIndex = columnList.lastIndex - 1
+    val relationIndex = columnList.lastIndex - 1
+
+    val totalIndex = columnList.lastIndex - 2
 
     init {
         val saved = Preferences.loadColumnCustomFilter()
         columnCustomFilter = mutableStateMapOf(
-            *(charaList.map { it to saved.contains(it) }).toTypedArray() + arrayOf(
+            *(charaNameList.map { it to saved.contains(it) }).toTypedArray() + arrayOf(
                 "合計" to true,
+                "要素" to true,
                 "所持" to true
             )
         )
@@ -530,4 +559,10 @@ class ViewModel(store: Store) {
     }
 
     private fun doCalcRate(baseRate: Double, relation: Int) = baseRate * (100 + relation) / 100.0
+
+    var displayRelationInfo by mutableStateOf(emptyList<String>())
+
+    fun showRelationInfo(index: Int) {
+        displayRelationInfo = listOf(charaNameList[index]) + RelationInfo.getLongString(charaRelation[index])
+    }
 }

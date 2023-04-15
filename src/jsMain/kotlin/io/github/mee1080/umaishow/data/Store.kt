@@ -19,14 +19,18 @@
 package io.github.mee1080.umaishow.data
 
 object Store {
-    val charaList = Source.chara.map { it.first }
+    val charaList = Source.chara
+
+    val charaNameList = charaList.map { it.first }
+
+    val charaRelation = charaList.map { it.second }
 
     private val charaRange = charaList.indices
 
     private val parentRelation = List(charaList.size) { child ->
-        val childSet = Source.chara[child].second
+        val childSet = charaList[child].second
         List(charaList.size) { parent ->
-            if (child == parent) emptySet() else childSet.intersect(Source.chara[parent].second)
+            if (child == parent) emptySet() else childSet.intersect(charaList[parent].second)
         }
     }
 
@@ -39,7 +43,7 @@ object Store {
     private val grandParentMap = parentRelation.mapIndexed { child, sets ->
         sets.mapIndexed { parent, set ->
             List(charaList.size) { grand ->
-                if (child == grand || parent == grand) 0 else set.intersect(Source.chara[grand].second)
+                if (child == grand || parent == grand) 0 else set.intersect(charaList[grand].second)
                     .sumOf { Source.relation[it]!! }
             }
         }
