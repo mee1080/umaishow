@@ -59,12 +59,12 @@ fun RatePanel(viewModel: ViewModel) {
     }
     H3 { Text("因子") }
     Div {
-        FactorSelect(viewModel, viewModel.charaNameList[viewModel.parent1], 0)
-        FactorSelect(viewModel, viewModel.charaNameList[viewModel.parent2], 1)
-        FactorSelect(viewModel, viewModel.charaNameList[viewModel.parent11], 2)
-        FactorSelect(viewModel, viewModel.charaNameList[viewModel.parent12], 3)
-        FactorSelect(viewModel, viewModel.charaNameList[viewModel.parent21], 4)
-        FactorSelect(viewModel, viewModel.charaNameList[viewModel.parent22], 5)
+        FactorSelect(viewModel, viewModel.charaNameList.getOrElse(viewModel.parent1) { "未選択" }, 0)
+        FactorSelect(viewModel, viewModel.charaNameList.getOrElse(viewModel.parent2) { "未選択" }, 1)
+        FactorSelect(viewModel, viewModel.charaNameList.getOrElse(viewModel.parent11) { "未選択" }, 2)
+        FactorSelect(viewModel, viewModel.charaNameList.getOrElse(viewModel.parent12) { "未選択" }, 3)
+        FactorSelect(viewModel, viewModel.charaNameList.getOrElse(viewModel.parent21) { "未選択" }, 4)
+        FactorSelect(viewModel, viewModel.charaNameList.getOrElse(viewModel.parent22) { "未選択" }, 5)
     }
     H3 { Text("目標適性") }
     ViewModel.Type.values().forEach { type ->
@@ -87,27 +87,27 @@ fun RatePanel(viewModel: ViewModel) {
     H3 { Text("個別発動率") }
     Table {
         Tr {
-            Td { Text(viewModel.charaNameList[viewModel.parent1]) }
+            Td { Text(viewModel.charaNameList.getOrElse(viewModel.parent1) { "未選択" }) }
             Td { Text(viewModel.calcResult.rate1.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(viewModel.charaNameList[viewModel.parent2]) }
+            Td { Text(viewModel.charaNameList.getOrElse(viewModel.parent2) { "未選択" }) }
             Td { Text(viewModel.calcResult.rate2.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(viewModel.charaNameList[viewModel.parent11]) }
+            Td { Text(viewModel.charaNameList.getOrElse(viewModel.parent11) { "未選択" }) }
             Td { Text(viewModel.calcResult.rate11.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(viewModel.charaNameList[viewModel.parent12]) }
+            Td { Text(viewModel.charaNameList.getOrElse(viewModel.parent12) { "未選択" }) }
             Td { Text(viewModel.calcResult.rate12.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(viewModel.charaNameList[viewModel.parent21]) }
+            Td { Text(viewModel.charaNameList.getOrElse(viewModel.parent21) { "未選択" }) }
             Td { Text(viewModel.calcResult.rate21.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(viewModel.charaNameList[viewModel.parent22]) }
+            Td { Text(viewModel.charaNameList.getOrElse(viewModel.parent22) { "未選択" }) }
             Td { Text(viewModel.calcResult.rate22.roundToPercentString(100)) }
         }
     }
