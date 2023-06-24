@@ -18,9 +18,9 @@
  */
 package io.github.mee1080.umaishow
 
-import io.github.mee1080.umaishow.components.pages.chara.CharaPanel
-import io.github.mee1080.umaishow.components.RatePanel
 import io.github.mee1080.umaishow.components.mwc.initLibraries
+import io.github.mee1080.umaishow.components.pages.calc.RatePanel
+import io.github.mee1080.umaishow.components.pages.chara.CharaPanel
 import io.github.mee1080.umaishow.components.pages.table.TablePage
 import io.github.mee1080.umaishow.style.AppStyleSheet
 import io.github.mee1080.umaishow.vm.ViewModel
@@ -42,7 +42,7 @@ fun main() {
         CharaPanel(model.state, model)
         TablePage(model.state.tableState, model)
         if (model.state.charaSelection.childSelected) {
-            RatePanel(model.state, model)
+            RatePanel(model.state.calcState, model.state.charaSelection, model)
         }
         Hr { style { marginTop(16.px) } }
         A(

@@ -319,89 +319,42 @@ class ViewModel {
         Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
     }
 
-    enum class Type(private val display: String) {
-        Ground("バ場"), Distance("距離"), RunningStyle("脚質");
-
-        override fun toString() = display
+    fun updateCalcState(action: CalcState.() -> CalcState) {
+        updateState { copy(calcState = calcState.action()) }
     }
 
-    enum class Rank {
-        G, F, E, D, C, B, A, S,
-    }
-
-    data class CalcSetting(
-        val baseRate: List<Double> = listOf(0.0, 0.02, 0.04, 0.06),
-        val parentBonus: Int = 20,
-
-        val initialProperValue: List<Rank> = listOf(Rank.C, Rank.A, Rank.A),
-        val goalProperValue: List<Rank> = listOf(Rank.A, Rank.S, Rank.A),
-        val properType: List<Type> = List(6) { if (it == 1) Type.Distance else Type.Ground },
-        val properLevel: List<Int> = List(6) { 3 },
-    )
-
-    data class CalcResult(
-        val rate1: Double = 0.0,
-        val rate2: Double = 0.0,
-        val rate11: Double = 0.0,
-        val rate12: Double = 0.0,
-        val rate21: Double = 0.0,
-        val rate22: Double = 0.0,
-
-        val groundRate: List<Double> = List(8) { 0.0 },
-        val distanceRate: List<Double> = List(8) { 0.0 },
-        val runningTypeRate: List<Double> = List(8) { 0.0 },
-
-        val goalRate: Double = 0.0,
-    )
-
-    var calcSetting by mutableStateOf(CalcSetting())
-
-    var calcResult by mutableStateOf(CalcResult())
-
-    fun updateCalcSetting(update: CalcSetting.() -> CalcSetting) {
-        calcSetting = calcSetting.update()
+    fun updateCalcSetting(action: CalcSetting.() -> CalcSetting) {
+        updateCalcState { copy(setting = setting.action()) }
         calcRate()
     }
 
     fun updateCalcBaseRate(level: Int, value: Number) {
         updateCalcSetting {
-            copy(baseRate = baseRate.mapIndexed { index, current -> if (index == level) value.toDouble() / 100 else current })
+            copy(baseRate = baseRate.replaceAt(level, value.toDouble() / 100))
         }
     }
 
     fun updateCalcInitialProper(type: Type, rank: Rank) {
         updateCalcSetting {
-            copy(
-                initialProperValue = initialProperValue.mapIndexed { index, oldRank ->
-                    if (index == type.ordinal) rank else oldRank
-                }
-            )
+            copy(initialProperValue = initialProperValue.replaceAt(type.ordinal, rank))
         }
     }
 
     fun updateCalcGoalProper(type: Type, rank: Rank) {
         updateCalcSetting {
-            copy(
-                goalProperValue = goalProperValue.mapIndexed { index, oldRank ->
-                    if (index == type.ordinal) rank else oldRank
-                }
-            )
+            copy(goalProperValue = goalProperValue.replaceAt(type.ordinal, rank))
         }
     }
 
     fun updateCalcProperType(target: Int, type: Type) {
         updateCalcSetting {
-            copy(
-                properType = properType.mapIndexed { index, oldType -> if (index == target) type else oldType },
-            )
+            copy(properType = properType.replaceAt(target, type))
         }
     }
 
     fun updateCalcProperLevel(target: Int, level: Int) {
         updateCalcSetting {
-            copy(
-                properLevel = properLevel.mapIndexed { index, oldLevel -> if (index == target) level else oldLevel },
-            )
+            copy(properLevel = properLevel.replaceAt(target, level))
         }
     }
 
@@ -415,9 +368,10 @@ class ViewModel {
             selection.parent11, selection.parent12, selection.parent21, selection.parent22
         )
         if (child == -1 || parent1 == -1 || parent2 == -1 || parent11 == -1 || parent12 == -1 || parent21 == -1 || parent22 == -1) {
-            calcResult = CalcResult()
+            updateCalcState { copy(result = CalcResult()) }
+            return
         }
-        val setting = calcSetting
+        val setting = state.calcState.setting
         val rate1 =
             doCalcRate(setting.baseRate[setting.properLevel[0]], Store.parent(child, parent1) + setting.parentBonus)
         val rate2 =
@@ -454,10 +408,11 @@ class ViewModel {
                 goalRate += rate
             }
         }
-        calcResult = CalcResult(
+        val calcResult = CalcResult(
             rate1, rate2, rate11, rate12, rate21, rate22,
             totalRates[0].toList(), totalRates[1].toList(), totalRates[2].toList(), goalRate,
         )
+        updateCalcState { copy(result = calcResult) }
     }
 
     private fun doCalcRate(baseRate: Double, relation: Int) = baseRate * (100 + relation) / 100.0

@@ -13,6 +13,7 @@ data class State(
     val charaSelection: CharaSelection = CharaSelection(),
     val autoSetParentsTarget: Int = Preferences.loadAutoSetParentsTarget(),
     val tableState: TableState = TableState(),
+    val calcState: CalcState = CalcState(),
 ) {
     val charaList = CharaList
 
@@ -143,3 +144,43 @@ data class FilterSetting(
         }
     }
 }
+
+data class CalcState(
+    val setting: CalcSetting = CalcSetting(),
+    val result: CalcResult = CalcResult(),
+)
+
+enum class Type(private val display: String) {
+    Ground("バ場"), Distance("距離"), RunningStyle("脚質");
+
+    override fun toString() = display
+}
+
+enum class Rank {
+    G, F, E, D, C, B, A, S,
+}
+
+data class CalcSetting(
+    val baseRate: List<Double> = listOf(0.0, 0.02, 0.04, 0.06),
+    val parentBonus: Int = 20,
+
+    val initialProperValue: List<Rank> = listOf(Rank.C, Rank.A, Rank.A),
+    val goalProperValue: List<Rank> = listOf(Rank.A, Rank.S, Rank.A),
+    val properType: List<Type> = List(6) { if (it == 1) Type.Distance else Type.Ground },
+    val properLevel: List<Int> = List(6) { 3 },
+)
+
+class CalcResult(
+    val rate1: Double = 0.0,
+    val rate2: Double = 0.0,
+    val rate11: Double = 0.0,
+    val rate12: Double = 0.0,
+    val rate21: Double = 0.0,
+    val rate22: Double = 0.0,
+
+    val groundRate: List<Double> = List(8) { 0.0 },
+    val distanceRate: List<Double> = List(8) { 0.0 },
+    val runningTypeRate: List<Double> = List(8) { 0.0 },
+
+    val goalRate: Double = 0.0,
+)

@@ -16,43 +16,42 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with umaishow.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.mee1080.umaishow.components
+package io.github.mee1080.umaishow.components.pages.calc
 
 import androidx.compose.runtime.Composable
 import io.github.mee1080.umaishow.components.common.LabeledRadio
 import io.github.mee1080.umaishow.roundToPercentString
-import io.github.mee1080.umaishow.vm.State
-import io.github.mee1080.umaishow.vm.ViewModel
+import io.github.mee1080.umaishow.vm.*
 import org.jetbrains.compose.web.dom.*
 
 @Composable
-fun RatePanel(state: State, viewModel: ViewModel) {
+fun RatePanel(state: CalcState, charaSelection: CharaSelection, viewModel: ViewModel) {
     H2 { Text("設定") }
     H3 { Text("基本確率") }
     (1..3).forEach { level ->
         Div {
             Text("赤${level}基本発動率：")
-            NumberInput(viewModel.calcSetting.baseRate[level] * 100) {
+            NumberInput(state.setting.baseRate[level] * 100) {
                 onInput { e -> e.value?.let { viewModel.updateCalcBaseRate(level, it) } }
             }
         }
     }
     Div {
         Text("親の相性補正：")
-        TextInput(viewModel.calcSetting.parentBonus.toString()) {
+        TextInput(state.setting.parentBonus.toString()) {
             onInput { viewModel.updateCalcSetting { copy(parentBonus = it.value.toIntOrNull() ?: parentBonus) } }
         }
     }
     H3 { Text("初期適性") }
-    ViewModel.Type.values().forEach { type ->
+    Type.values().forEach { type ->
         Div {
             Text("$type：")
-            ViewModel.Rank.values().forEach { rank ->
+            Rank.values().forEach { rank ->
                 LabeledRadio(
                     "initial${type.name}",
                     rank.ordinal.toString(),
                     rank.name,
-                    viewModel.calcSetting.initialProperValue[type.ordinal].ordinal == rank.ordinal
+                    state.setting.initialProperValue[type.ordinal].ordinal == rank.ordinal
                 ) {
                     viewModel.updateCalcInitialProper(type, rank)
                 }
@@ -61,23 +60,23 @@ fun RatePanel(state: State, viewModel: ViewModel) {
     }
     H3 { Text("因子") }
     Div {
-        FactorSelect(viewModel, state.charaNameList.getOrElse(state.charaSelection.parent1) { "未選択" }, 0)
-        FactorSelect(viewModel, state.charaNameList.getOrElse(state.charaSelection.parent2) { "未選択" }, 1)
-        FactorSelect(viewModel, state.charaNameList.getOrElse(state.charaSelection.parent11) { "未選択" }, 2)
-        FactorSelect(viewModel, state.charaNameList.getOrElse(state.charaSelection.parent12) { "未選択" }, 3)
-        FactorSelect(viewModel, state.charaNameList.getOrElse(state.charaSelection.parent21) { "未選択" }, 4)
-        FactorSelect(viewModel, state.charaNameList.getOrElse(state.charaSelection.parent22) { "未選択" }, 5)
+        FactorSelect(state.setting, viewModel, CharaList.nameList.getOrElse(charaSelection.parent1) { "未選択" }, 0)
+        FactorSelect(state.setting, viewModel, CharaList.nameList.getOrElse(charaSelection.parent2) { "未選択" }, 1)
+        FactorSelect(state.setting, viewModel, CharaList.nameList.getOrElse(charaSelection.parent11) { "未選択" }, 2)
+        FactorSelect(state.setting, viewModel, CharaList.nameList.getOrElse(charaSelection.parent12) { "未選択" }, 3)
+        FactorSelect(state.setting, viewModel, CharaList.nameList.getOrElse(charaSelection.parent21) { "未選択" }, 4)
+        FactorSelect(state.setting, viewModel, CharaList.nameList.getOrElse(charaSelection.parent22) { "未選択" }, 5)
     }
     H3 { Text("目標適性") }
-    ViewModel.Type.values().forEach { type ->
+    Type.values().forEach { type ->
         Div {
             Text("$type：")
-            ViewModel.Rank.values().forEach { rank ->
+            Rank.values().forEach { rank ->
                 LabeledRadio(
                     "goal${type.name}",
                     rank.ordinal.toString(),
                     rank.name,
-                    viewModel.calcSetting.goalProperValue[type.ordinal].ordinal == rank.ordinal
+                    state.setting.goalProperValue[type.ordinal].ordinal == rank.ordinal
                 ) {
                     viewModel.updateCalcGoalProper(type, rank)
                 }
@@ -85,57 +84,57 @@ fun RatePanel(state: State, viewModel: ViewModel) {
         }
     }
     H2 { Text("計算結果（推定）") }
-    H3 { Text("目標達成率： ${viewModel.calcResult.goalRate.roundToPercentString(100)}") }
+    H3 { Text("目標達成率： ${state.result.goalRate.roundToPercentString(100)}") }
     H3 { Text("個別発動率") }
     Table {
         Tr {
-            Td { Text(state.charaNameList.getOrElse(state.charaSelection.parent1) { "未選択" }) }
-            Td { Text(viewModel.calcResult.rate1.roundToPercentString(100)) }
+            Td { Text(CharaList.nameList.getOrElse(charaSelection.parent1) { "未選択" }) }
+            Td { Text(state.result.rate1.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(state.charaNameList.getOrElse(state.charaSelection.parent2) { "未選択" }) }
-            Td { Text(viewModel.calcResult.rate2.roundToPercentString(100)) }
+            Td { Text(CharaList.nameList.getOrElse(charaSelection.parent2) { "未選択" }) }
+            Td { Text(state.result.rate2.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(state.charaNameList.getOrElse(state.charaSelection.parent11) { "未選択" }) }
-            Td { Text(viewModel.calcResult.rate11.roundToPercentString(100)) }
+            Td { Text(CharaList.nameList.getOrElse(charaSelection.parent11) { "未選択" }) }
+            Td { Text(state.result.rate11.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(state.charaNameList.getOrElse(state.charaSelection.parent12) { "未選択" }) }
-            Td { Text(viewModel.calcResult.rate12.roundToPercentString(100)) }
+            Td { Text(CharaList.nameList.getOrElse(charaSelection.parent12) { "未選択" }) }
+            Td { Text(state.result.rate12.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(state.charaNameList.getOrElse(state.charaSelection.parent21) { "未選択" }) }
-            Td { Text(viewModel.calcResult.rate21.roundToPercentString(100)) }
+            Td { Text(CharaList.nameList.getOrElse(charaSelection.parent21) { "未選択" }) }
+            Td { Text(state.result.rate21.roundToPercentString(100)) }
         }
         Tr {
-            Td { Text(state.charaNameList.getOrElse(state.charaSelection.parent22) { "未選択" }) }
-            Td { Text(viewModel.calcResult.rate22.roundToPercentString(100)) }
+            Td { Text(CharaList.nameList.getOrElse(charaSelection.parent22) { "未選択" }) }
+            Td { Text(state.result.rate22.roundToPercentString(100)) }
         }
     }
     H3 { Text("適性別確率") }
     Table {
         Tr {
             Th { Text("種別") }
-            ViewModel.Rank.values().forEach {
+            Rank.values().forEach {
                 Th { Text(it.name) }
             }
         }
         Tr {
             Th { Text("バ場") }
-            viewModel.calcResult.groundRate.forEach {
+            state.result.groundRate.forEach {
                 Td { Text(it.roundToPercentString(100)) }
             }
         }
         Tr {
             Th { Text("距離") }
-            viewModel.calcResult.distanceRate.forEach {
+            state.result.distanceRate.forEach {
                 Td { Text(it.roundToPercentString(100)) }
             }
         }
         Tr {
             Th { Text("脚質") }
-            viewModel.calcResult.runningTypeRate.forEach {
+            state.result.runningTypeRate.forEach {
                 Td { Text(it.roundToPercentString(100)) }
             }
         }
@@ -144,14 +143,14 @@ fun RatePanel(state: State, viewModel: ViewModel) {
 
 @Composable
 private fun FactorSelect(
+    setting: CalcSetting,
     viewModel: ViewModel,
     charaName: String,
     index: Int,
 ) {
-    val setting = viewModel.calcSetting
     Div { Text(charaName) }
     Div {
-        ViewModel.Type.values().forEach { type ->
+        Type.values().forEach { type ->
             LabeledRadio("type$index", type.ordinal.toString(), type.toString(), setting.properType[index] == type) {
                 viewModel.updateCalcProperType(index, type)
             }
