@@ -37,13 +37,13 @@ import org.jetbrains.compose.web.renderComposable
 
 fun main() {
     initLibraries()
-    val model = ViewModel(Store)
+    val model = ViewModel()
     renderComposable(rootElementId = "root") {
         Style(AppStyleSheet)
-        CharaPanel(model)
-        RelationTable(model)
-        if (model.child != -1) {
-            RatePanel(model)
+        CharaPanel(model.state, model)
+        RelationTable(model.state, model)
+        if (model.state.charaSelection.childSelected) {
+            RatePanel(model.state, model)
         }
         Hr { style { marginTop(16.px) } }
         A(

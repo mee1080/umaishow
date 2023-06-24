@@ -18,202 +18,96 @@
  */
 package io.github.mee1080.umaishow.vm
 
-import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import io.github.mee1080.umaishow.data.RelationInfo
 import io.github.mee1080.umaishow.data.Store
+import io.github.mee1080.umaishow.removedAt
+import io.github.mee1080.umaishow.replace
+import io.github.mee1080.umaishow.replaceAt
 import kotlin.math.min
 
-class ViewModel(store: Store) {
+class ViewModel() {
 
-    val charaList = store.charaList
+    var state by mutableStateOf(State())
 
-    val charaNameList = store.charaNameList
+    init {
+        updateRelationTable()
+    }
 
-    val charaRelation = store.charaRelation
+    private fun updateState(action: State.() -> State) {
+        state = state.action()
+    }
 
-    val totalRelation get() = calcTotalRelation()
-
-    private fun calcTotalRelation(
-        child: Int = this.child,
-        parent1: Int = this.parent1,
-        parent2: Int = this.parent2,
-        parent11: Int = this.parent11,
-        parent12: Int = this.parent12,
-        parent21: Int = this.parent21,
-        parent22: Int = this.parent22,
-    ) = Store.parent(child, parent1) + Store.parent(child, parent2) + Store.parent(parent1, parent2) +
-            Store.grandParent(child, parent1, parent11) + Store.grandParent(child, parent1, parent12) +
-            Store.grandParent(child, parent2, parent21) + Store.grandParent(child, parent2, parent22)
-
-    val combinationError
-        get() = child == parent1 || child == parent2
-                || (parent1 != -1 && (parent1 == parent2 || parent1 == parent11 || parent1 == parent12))
-                || (parent2 != -1 && (parent2 == parent21 || parent2 == parent22))
-                || (parent11 != -1 && parent11 == parent12)
-                || (parent21 != -1 && parent21 == parent22)
-
-    var orderByRelation by mutableStateOf(Preferences.loadParentSortOrder())
-        private set
+    private fun updateSelection(action: CharaSelection.() -> CharaSelection) {
+        updateState {
+            copy(charaSelection = charaSelection.action())
+        }
+        updateRelationTable()
+    }
 
     fun updateOrderByRelation(value: Boolean) {
-        orderByRelation = value
+        updateSelection { copy(orderByRelation = value) }
         Preferences.saveParentSortOrder(value)
     }
 
-    val indexedCharaList = charaNameList.mapIndexed { index, name -> index to name }
-
-    val childList = listOf(-1 to "2世代相性") + indexedCharaList
-
-    var child by mutableStateOf(-1)
-        private set
-
-    val childSelected get() = child >= 0
-
     fun updateChild(value: Int) {
-        child = value
-        if (parent1 == value) parent1 = -1
-        if (parent2 == value) parent2 = -1
+        updateSelection { copy(child = value) }
     }
-
-    val parent1List
-        get() = generateParentList(false) {
-            listOf(
-                Store.parent(child, it),
-                calcTotalRelation(parent1 = it)
-            )
-        }
-
-    var parent1: Int by mutableStateOf(-1)
-        private set
 
     fun updateParent1(value: Int) {
-        parent1 = value
+        updateSelection { copy(parent1 = value) }
         calcRate()
     }
-
-    val parent2List
-        get() = generateParentList(false) {
-            listOf(
-                Store.parent(child, it),
-                calcTotalRelation(parent2 = it)
-            )
-        }
-
-    var parent2: Int by mutableStateOf(-1)
-        private set
 
     fun updateParent2(value: Int) {
-        parent2 = value
+        updateSelection { copy(parent2 = value) }
         calcRate()
     }
-
-    val parent11List
-        get() = generateParentList {
-            listOf(
-                Store.grandParent(child, parent1, it),
-                calcTotalRelation(parent11 = it)
-            )
-        }
-
-    var parent11: Int by mutableStateOf(-1)
-        private set
 
     fun updateParent11(value: Int) {
-        parent11 = value
+        updateSelection { copy(parent11 = value) }
         calcRate()
     }
-
-    val parent12List
-        get() = generateParentList {
-            listOf(
-                Store.grandParent(child, parent1, it),
-                calcTotalRelation(parent12 = it)
-            )
-        }
-
-    var parent12: Int by mutableStateOf(-1)
-        private set
 
     fun updateParent12(value: Int) {
-        parent12 = value
+        updateSelection { copy(parent12 = value) }
         calcRate()
     }
-
-    val parent21List
-        get() = generateParentList {
-            listOf(
-                Store.grandParent(child, parent2, it),
-                calcTotalRelation(parent21 = it)
-            )
-        }
-
-    var parent21: Int by mutableStateOf(-1)
-        private set
 
     fun updateParent21(value: Int) {
-        parent21 = value
+        updateSelection { copy(parent21 = value) }
         calcRate()
     }
-
-    val parent22List
-        get() = generateParentList {
-            listOf(
-                Store.grandParent(child, parent2, it),
-                calcTotalRelation(parent22 = it)
-            )
-        }
-
-    var parent22: Int by mutableStateOf(-1)
-        private set
 
     fun updateParent22(value: Int) {
-        parent22 = value
+        updateSelection { copy(parent22 = value) }
         calcRate()
     }
 
-    private fun generateParentList(
-        includeChild: Boolean = true,
-        calcRelation: (Int) -> List<Int>
-    ): List<Pair<Int, String>> {
-        if (!childSelected) return emptyList()
-        var list = indexedCharaList
-            .filter { includeChild || it.first != child }
-            .map { (index, name) ->
-                val relation = calcRelation(index)
-                Triple(index, "$name (${relation.joinToString("->")})", relation.last())
-            }
-        if (orderByRelation) {
-            list = list.sortedByDescending { it.third }
-        }
-        return listOf(-1 to "未選択") + list.map { it.first to it.second }
-    }
-
-    var autoSetParentsTarget by mutableStateOf(Preferences.loadAutoSetParentsTarget())
-        private set
-
     fun updateAutoSetParentsTarget(value: Int) {
-        autoSetParentsTarget = value
+        updateState { copy(autoSetParentsTarget = value) }
         Preferences.saveAutoSetParentsTarget(value)
     }
 
-    val ownedChara: SnapshotStateMap<String, Boolean>
-
-    init {
-        val saved = Preferences.loadOwnedChara()
-        ownedChara = mutableStateMapOf(*(charaNameList.map { it to saved.contains(it) }).toTypedArray())
-    }
-
     fun updateOwnedChara(name: String, value: Boolean) {
-        ownedChara[name] = value
-        Preferences.saveOwnedChara(ownedChara.filterValues { it }.keys)
+        updateState { copy(ownedChara = ownedChara.replace(name, value)) }
+        Preferences.saveOwnedChara(state.ownedChara.filterValues { it }.keys)
     }
 
     fun autoSetParents() {
-        if (!childSelected) return
-        val targetList = indexedCharaList
-            .filter { it.first != child && (autoSetParentsTarget == 0 || ownedChara[it.second] ?: false) }
+        val state = state
+        val selection = state.charaSelection
+        if (!selection.childSelected) return
+        val (child, parent1, parent2) = listOf(
+            selection.child, selection.parent1, selection.parent2
+        )
+        val (parent11, parent12, parent21, parent22) = listOf(
+            selection.parent11, selection.parent12, selection.parent21, selection.parent22
+        )
+        val targetList = CharaList.indexedCharaList
+            .filter { it.first != child && (state.autoSetParentsTarget == 0 || state.ownedChara[it.second] ?: false) }
             .map { it.first }
             .sortedByDescending { Store.parent(child, it) }
         val p1List = (if (parent1 == -1) targetList else listOf(parent1))
@@ -226,7 +120,8 @@ class ViewModel(store: Store) {
         val p22List = if (parent22 == -1) targetList else listOf(parent22)
         var maxRelation = 0
         var maxCombination = listOf(parent1, parent2, parent11, parent12, parent21, parent22)
-        val checkedParent1 = BooleanArray(charaNameList.size) { false }
+        val charaCount = CharaList.charaList.size
+        val checkedParent1 = BooleanArray(charaCount) { false }
         p1List.forEach { p1Pair ->
             val p1 = p1Pair.first
             val p1Relation = p1Pair.second
@@ -236,14 +131,14 @@ class ViewModel(store: Store) {
                 val p2Relation = p2Pair.second
                 val parentsRelation = Store.parent(p1, p2)
                 if (p1Relation * 3 + p2Relation * 3 + parentsRelation > maxRelation) {
-                    val checkedParent11 = BooleanArray(charaNameList.size) { it == p1 }
+                    val checkedParent11 = BooleanArray(charaCount) { it == p1 }
                     p11List.filter { it != p1 }.forEach { p11 ->
                         checkedParent11[p11] = true
                         val p11Relation = Store.grandParent(child, p1, p11)
                         p12List.filterNot { checkedParent11[it] }.forEach { p12 ->
                             val p12Relation = Store.grandParent(child, p1, p12)
                             if (p1Relation + p11Relation + p12Relation + p2Relation * 3 + parentsRelation > maxRelation) {
-                                val checkedParent21 = BooleanArray(charaNameList.size) { it == p2 }
+                                val checkedParent21 = BooleanArray(charaCount) { it == p2 }
                                 p21List.filter { it != p2 }.forEach { p21 ->
                                     checkedParent21[p21] = true
                                     val p21Relation = Store.grandParent(child, p2, p21)
@@ -263,222 +158,158 @@ class ViewModel(store: Store) {
                 }
             }
         }
-        parent1 = maxCombination[0]
-        parent2 = maxCombination[1]
-        parent11 = maxCombination[2]
-        parent12 = maxCombination[3]
-        parent21 = maxCombination[4]
-        parent22 = maxCombination[5]
+        updateSelection {
+            copy(
+                parent1 = maxCombination[0],
+                parent2 = maxCombination[1],
+                parent11 = maxCombination[2],
+                parent12 = maxCombination[3],
+                parent21 = maxCombination[4],
+                parent22 = maxCombination[5],
+            )
+        }
         calcRate()
     }
 
     fun clearParents() {
-        parent1 = -1
-        parent2 = -1
-        parent11 = -1
-        parent12 = -1
-        parent21 = -1
-        parent22 = -1
+        updateSelection {
+            copy(
+                parent1 = -1, parent2 = -1,
+                parent11 = -1, parent12 = -1,
+                parent21 = -1, parent22 = -1,
+            )
+        }
         calcRate()
     }
 
-    class RelationTableEntry(
-        val index: Int,
-        val name: String,
-        val parentRelation: Int,
-        val relationList: List<Int>,
-        val info: String,
-    ) {
-        val relationTotal = relationList.sum()
+    private fun updateRelationTable() {
+        val selection = state.charaSelection
+        val child = selection.child
+        val table = if (selection.childSelected) CharaList.charaList.mapIndexed { index, chara ->
+            RelationTableEntry(
+                index,
+                chara.first,
+                Store.parent(child, index),
+                Store.grandParentList(child, index),
+                RelationInfo.getShortString(chara.second),
+            )
+        } else CharaList.charaList.mapIndexed { index, chara ->
+            RelationTableEntry(
+                index,
+                chara.first,
+                0,
+                Store.parentList(index),
+                RelationInfo.getShortString(chara.second),
+            )
+        }
+        updateState { copy(rawRelationTable = table) }
+        sortRelationTable()
     }
 
-    val relationTable: List<RelationTableEntry>
-        get() {
-            var list = if (childSelected) charaList.mapIndexed { index, chara ->
-                RelationTableEntry(
-                    index,
-                    chara.first,
-                    Store.parent(child, index),
-                    Store.grandParentList(child, index),
-                    RelationInfo.getShortString(chara.second),
-                )
-            } else charaList.mapIndexed { index, chara ->
-                RelationTableEntry(
-                    index,
-                    chara.first,
-                    0,
-                    Store.parentList(index),
-                    RelationInfo.getShortString(chara.second),
-                )
-            }
-            return when (sortKey) {
-                -2 -> list
-                -1 -> list.sortedByDescending { it.parentRelation }
-                else -> list.sortedByDescending {
-                    if (sortKey < it.relationList.size) it.relationList[sortKey] else it.relationTotal
-                }
+    private fun sortRelationTable() {
+        val table = state.rawRelationTable
+        val sorted = when (val sortKey = state.sortKey) {
+            -2 -> table
+            -1 -> table.sortedByDescending { it.parentRelation }
+            else -> table.sortedByDescending {
+                if (sortKey < it.relationList.size) it.relationList[sortKey] else it.relationTotal
             }
         }
-
-    var sortKey by mutableStateOf(-2)
-        private set
+        updateState { copy(relationTable = sorted) }
+    }
 
     fun sort(key: Int) {
-        sortKey = key
+        updateState { copy(sortKey = key) }
+        sortRelationTable()
     }
 
-    enum class FilterMode {
-        NONE, OWNED, NOT_OWNED, CUSTOM, RELATION,
+    fun updateRowFilter(action: FilterSetting.() -> FilterSetting) {
+        updateState { copy(rowFilter = rowFilter.action()) }
+        applyRowFilter()
     }
 
-    var rowFilterMode by mutableStateOf(FilterMode.NONE)
-        private set
-
-    fun updateRowFilterMode(value: FilterMode) {
-        rowFilterMode = value
+    private fun applyRowFilter() {
+        updateState {
+            val rowHideIndices = charaList.nameList.mapIndexedNotNull { index, name ->
+                if (rowFilter.check(index, name, ownedChara)) null else index
+            }
+            copy(rowHideIndices = rowHideIndices)
+        }
     }
 
     var showRowCustomFilterDialog by mutableStateOf(false)
 
-    val rowCustomFilter: SnapshotStateMap<String, Boolean>
-
-    init {
-        val saved = Preferences.loadRowCustomFilter()
-        rowCustomFilter = mutableStateMapOf(*(charaNameList.map { it to saved.contains(it) }).toTypedArray())
-    }
-
     fun updateRowCustomFilter(name: String, value: Boolean) {
-        rowCustomFilter[name] = value
-        Preferences.saveRowCustomFilter(rowCustomFilter.filterValues { it }.keys)
+        updateRowFilter { copy(custom = custom.replace(name, value)) }
+        Preferences.saveRowCustomFilter(state.rowFilter.custom.filterValues { it }.keys)
     }
 
     fun updateRowCustomFilterAll() {
-        val value = !rowCustomFilter.values.any { it }
-        rowCustomFilter.putAll(rowCustomFilter.mapValues { value })
-        Preferences.saveRowCustomFilter(rowCustomFilter.filterValues { it }.keys)
+        val value = !state.rowFilter.custom.values.any { it }
+        updateRowFilter { copy(custom = custom.mapValues { value }) }
+        Preferences.saveRowCustomFilter(state.rowFilter.custom.filterValues { it }.keys)
     }
-
-    val relationFilter = listOf(-1 to "未設定") + RelationInfo.filters
 
     var showRowRelationFilterDialog by mutableStateOf(false)
 
-    val rowRelationFilter: SnapshotStateList<Int>
-
-    init {
-        val saved = Preferences.loadRowRelationFilter()
-        rowRelationFilter = mutableStateListOf(*saved.toTypedArray())
-    }
-
     fun addRowRelationFilter() {
-        rowRelationFilter.add(-1)
-        Preferences.saveRowRelationFilter(rowRelationFilter.toList())
+        updateRowFilter { copy(relation = relation + -1) }
+        Preferences.saveRowRelationFilter(state.rowFilter.relation.toList())
     }
 
     fun deleteRowRelationFilter(index: Int) {
-        rowRelationFilter.removeAt(index)
-        Preferences.saveRowRelationFilter(rowRelationFilter.toList())
+        updateRowFilter { copy(relation = relation.removedAt(index)) }
+        Preferences.saveRowRelationFilter(state.rowFilter.relation.toList())
     }
 
     fun setRowRelationFilter(index: Int, value: Int) {
-        rowRelationFilter[index] = value
-        Preferences.saveRowRelationFilter(rowRelationFilter.toList())
+        updateRowFilter { copy(relation = relation.replaceAt(index, value)) }
+        Preferences.saveRowRelationFilter(state.rowFilter.relation.toList())
     }
 
-    private fun rowFilterCheck(index: Int, name: String) = when (rowFilterMode) {
-        FilterMode.NONE -> true
-        FilterMode.OWNED -> ownedChara[name] ?: false
-        FilterMode.NOT_OWNED -> !(ownedChara[name] ?: false)
-        FilterMode.CUSTOM -> rowCustomFilter[name] ?: false
-        FilterMode.RELATION -> rowRelationFilter.all { it < 0 || charaRelation[index].contains(it) }
+    fun updateColumnFilter(action: FilterSetting.() -> FilterSetting) {
+        updateState { copy(columnFilter = columnFilter.action()) }
+        applyColumnFilter()
     }
 
-    val rowHideIndices
-        get() = charaNameList.mapIndexedNotNull { index, name ->
-            if (rowFilterCheck(index, name)) null else index
+    private fun applyColumnFilter() {
+        updateState {
+            val columnHideIndices = charaList.nameList.mapIndexedNotNull { index, name ->
+                if (columnFilter.check(index, name, ownedChara)) null else index
+            }
+            copy(columnHideIndices = columnHideIndices)
         }
-
-    var columnFilterMode by mutableStateOf(FilterMode.NONE)
-        private set
-
-    fun updateColumnFilterMode(value: FilterMode) {
-        columnFilterMode = value
     }
 
     var showColumnCustomFilterDialog by mutableStateOf(false)
 
-    val columnCustomFilter: SnapshotStateMap<String, Boolean>
-
-    val columnList = charaNameList + listOf("合計", "要素", "所持")
-
-    val ownedIndex = columnList.lastIndex
-
-    val relationIndex = columnList.lastIndex - 1
-
-    val totalIndex = columnList.lastIndex - 2
-
-    init {
-        val saved = Preferences.loadColumnCustomFilter()
-        columnCustomFilter = mutableStateMapOf(
-            *(charaNameList.map { it to saved.contains(it) }).toTypedArray() + arrayOf(
-                "合計" to true,
-                "要素" to true,
-                "所持" to true
-            )
-        )
-    }
-
     fun updateColumnCustomFilter(name: String, value: Boolean) {
-        columnCustomFilter[name] = value
-        Preferences.saveColumnCustomFilter(columnCustomFilter.filterValues { it }.keys)
+        updateColumnFilter { copy(custom = custom.replace(name, value)) }
+        Preferences.saveColumnCustomFilter(state.columnFilter.custom.filterValues { it }.keys)
     }
 
     fun updateColumnCustomFilterAll() {
-        val value = !columnCustomFilter.values.any { it }
-        columnCustomFilter.putAll(columnCustomFilter.mapValues { value })
-        Preferences.saveRowCustomFilter(columnCustomFilter.filterValues { it }.keys)
+        val value = !state.columnFilter.custom.values.any { it }
+        updateColumnFilter { copy(custom = custom.mapValues { value }) }
+        Preferences.saveColumnCustomFilter(state.columnFilter.custom.filterValues { it }.keys)
     }
 
     var showColumnRelationFilterDialog by mutableStateOf(false)
 
-    val columnRelationFilter: SnapshotStateList<Int>
-
-    init {
-        val saved = Preferences.loadColumnRelationFilter()
-        columnRelationFilter = mutableStateListOf(*saved.toTypedArray())
-    }
-
     fun addColumnRelationFilter() {
-        columnRelationFilter.add(-1)
-        Preferences.saveColumnRelationFilter(columnRelationFilter.toList())
+        updateColumnFilter { copy(relation = relation + -1) }
+        Preferences.saveColumnRelationFilter(state.columnFilter.relation.toList())
     }
 
     fun deleteColumnRelationFilter(index: Int) {
-        columnRelationFilter.removeAt(index)
-        Preferences.saveColumnRelationFilter(columnRelationFilter.toList())
+        updateColumnFilter { copy(relation = relation.removedAt(index)) }
+        Preferences.saveColumnRelationFilter(state.columnFilter.relation.toList())
     }
 
     fun setColumnRelationFilter(index: Int, value: Int) {
-        columnRelationFilter[index] = value
-        Preferences.saveColumnRelationFilter(columnRelationFilter.toList())
+        updateColumnFilter { copy(relation = relation.replaceAt(index, value)) }
+        Preferences.saveColumnRelationFilter(state.columnFilter.relation.toList())
     }
-
-    private fun columnFilterCheck(index: Int, name: String) = when (columnFilterMode) {
-        FilterMode.NONE -> true
-        FilterMode.OWNED -> ownedChara[name] ?: false
-        FilterMode.NOT_OWNED -> !(ownedChara[name] ?: false)
-        FilterMode.CUSTOM -> columnCustomFilter[name] ?: false
-        FilterMode.RELATION -> {
-            val relation = charaRelation.getOrNull(index)
-            relation == null || columnRelationFilter.all {
-                it < 0 || relation.contains(it)
-            }
-        }
-    }
-
-    val columnHideIndices
-        get() = columnList.mapIndexedNotNull { index, name ->
-            if (columnFilterCheck(index, name)) null else index
-        }
 
     enum class Type(private val display: String) {
         Ground("バ場"), Distance("距離"), RunningStyle("脚質");
@@ -567,6 +398,14 @@ class ViewModel(store: Store) {
     }
 
     private fun calcRate() {
+        val state = state
+        val selection = state.charaSelection
+        val (child, parent1, parent2) = listOf(
+            selection.child, selection.parent1, selection.parent2
+        )
+        val (parent11, parent12, parent21, parent22) = listOf(
+            selection.parent11, selection.parent12, selection.parent21, selection.parent22
+        )
         if (child == -1 || parent1 == -1 || parent2 == -1 || parent11 == -1 || parent12 == -1 || parent21 == -1 || parent22 == -1) {
             calcResult = CalcResult()
         }
@@ -618,6 +457,7 @@ class ViewModel(store: Store) {
     var displayRelationInfo by mutableStateOf(emptyList<String>())
 
     fun showRelationInfo(index: Int) {
-        displayRelationInfo = listOf(charaNameList[index]) + RelationInfo.getLongString(charaRelation[index])
+        displayRelationInfo =
+            listOf(CharaList.nameList[index]) + RelationInfo.getLongString(CharaList.charaRelation[index])
     }
 }

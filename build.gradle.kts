@@ -22,9 +22,13 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation(compose.web.core)
+                implementation(compose.html.core)
                 implementation(compose.runtime)
+                implementation(npm("@material/mwc-button", "0.25.3"))
                 implementation(npm("@material/mwc-dialog", "0.25.3"))
+                implementation(npm("@material/mwc-tab", "0.25.3"))
+                implementation(npm("@material/mwc-tab-bar", "0.25.3"))
+                implementation(npm("@material/mwc-slider", "0.25.3"))
             }
         }
     }

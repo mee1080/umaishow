@@ -21,6 +21,8 @@ package io.github.mee1080.umaishow.components
 import androidx.compose.runtime.Composable
 import io.github.mee1080.umaishow.components.mwc.*
 import io.github.mee1080.umaishow.onClickOrTouch
+import io.github.mee1080.umaishow.vm.FilterMode
+import io.github.mee1080.umaishow.vm.State
 import io.github.mee1080.umaishow.vm.ViewModel
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.Color
@@ -32,47 +34,64 @@ import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
 
 @Composable
-fun CharaPanel(model: ViewModel) {
+fun CharaPanel(state: State, model: ViewModel) {
     Div({ style { display(DisplayStyle.Flex) } }) {
         Div {
-            CharaSelect("表示対象：", model.childList, model.child) { model.updateChild(it) }
-            if (!model.childSelected) {
+            CharaSelect("表示対象：", state.charaList.childList, state.charaSelection.child) { model.updateChild(it) }
+            if (!state.charaSelection.childSelected) {
                 Div { Text("キャラを選択すると3世代相性を表示します") }
-            } else if (model.combinationError) {
+            } else if (state.charaSelection.combinationError) {
                 Div({ style { color(Color.red) } }) { Text("組み合わせ重複") }
             } else {
-                Div { Text("相性合計：${model.totalRelation}") }
-                if (model.totalRelation >= 151) {
+                val totalRelation = state.charaSelection.totalRelation
+                Div { Text("相性合計：${totalRelation}") }
+                if (totalRelation >= 151) {
                     Div { Text("◎確定") }
                 } else {
-                    Div { Text("共通重賞 ${151 - model.totalRelation} で◎") }
+                    Div { Text("共通重賞 ${151 - totalRelation} で◎") }
                 }
             }
-            if (model.childSelected) {
+            if (state.charaSelection.childSelected) {
                 Div {
-                    LabeledRadio("order", "1", "相性順", model.orderByRelation) {
+                    LabeledRadio("order", "1", "相性順", state.charaSelection.orderByRelation) {
                         model.updateOrderByRelation(true)
                     }
-                    LabeledRadio("order", "0", "名前順", !model.orderByRelation) {
+                    LabeledRadio("order", "0", "名前順", !state.charaSelection.orderByRelation) {
                         model.updateOrderByRelation(false)
                     }
                 }
             }
         }
-        if (model.childSelected) {
+        if (state.charaSelection.childSelected) {
             Div {
                 Div({ style { display(DisplayStyle.Flex) } }) {
-                    CharaSelect("親1：", model.parent1List, model.parent1) { model.updateParent1(it) }
+                    CharaSelect(
+                        "親1：",
+                        state.charaSelection.parent1List,
+                        state.charaSelection.parent1
+                    ) { model.updateParent1(it) }
                     Div {
-                        CharaSelect("祖1-1：", model.parent11List, model.parent11) { model.updateParent11(it) }
-                        CharaSelect("祖1-2：", model.parent12List, model.parent12) { model.updateParent12(it) }
+                        CharaSelect("祖1-1：", state.charaSelection.parent11List, state.charaSelection.parent11) {
+                            model.updateParent11(it)
+                        }
+                        CharaSelect("祖1-2：", state.charaSelection.parent12List, state.charaSelection.parent12) {
+                            model.updateParent12(it)
+                        }
                     }
                 }
                 Div({ style { display(DisplayStyle.Flex) } }) {
-                    CharaSelect("親2：", model.parent2List, model.parent2) { model.updateParent2(it) }
+                    CharaSelect(
+                        "親2：",
+                        state.charaSelection.parent2List,
+                        state.charaSelection.parent2
+                    ) { model.updateParent2(it) }
                     Div {
-                        CharaSelect("祖2-1：", model.parent21List, model.parent21) { model.updateParent21(it) }
-                        CharaSelect("祖2-2：", model.parent22List, model.parent22) { model.updateParent22(it) }
+                        CharaSelect("祖2-1：", state.charaSelection.parent21List, state.charaSelection.parent21) {
+                            model.updateParent21(it)
+                        }
+                        CharaSelect("祖2-2：", state.charaSelection.parent22List, state.charaSelection.parent22) {
+                            model.updateParent22(it)
+                        }
                     }
                 }
                 Div {
@@ -81,10 +100,10 @@ fun CharaPanel(model: ViewModel) {
                     }) {
                         Text("相性が高くなるよう自動設定")
                     }
-                    LabeledRadio("auto", "0", "全てのウマ娘", model.autoSetParentsTarget == 0) {
+                    LabeledRadio("auto", "0", "全てのウマ娘", state.autoSetParentsTarget == 0) {
                         model.updateAutoSetParentsTarget(0)
                     }
-                    LabeledRadio("auto", "1", "所持のみ", model.autoSetParentsTarget == 1) {
+                    LabeledRadio("auto", "1", "所持のみ", state.autoSetParentsTarget == 1) {
                         model.updateAutoSetParentsTarget(1)
                     }
                     Button({
@@ -98,31 +117,31 @@ fun CharaPanel(model: ViewModel) {
     }
     Div {
         Text("行表示対象")
-        LabeledRadio("rowFilterMode", "0", "全て", model.rowFilterMode == ViewModel.FilterMode.NONE) {
-            model.updateRowFilterMode(ViewModel.FilterMode.NONE)
+        LabeledRadio("rowFilterMode", "0", "全て", state.rowFilter.mode == FilterMode.NONE) {
+            model.updateRowFilter { copy(mode = FilterMode.NONE) }
         }
-        LabeledRadio("rowFilterMode", "1", "所持のみ", model.rowFilterMode == ViewModel.FilterMode.OWNED) {
-            model.updateRowFilterMode(ViewModel.FilterMode.OWNED)
+        LabeledRadio("rowFilterMode", "1", "所持のみ", state.rowFilter.mode == FilterMode.OWNED) {
+            model.updateRowFilter { copy(mode = FilterMode.OWNED) }
         }
-        LabeledRadio("rowFilterMode", "2", "非所持のみ", model.rowFilterMode == ViewModel.FilterMode.NOT_OWNED) {
-            model.updateRowFilterMode(ViewModel.FilterMode.NOT_OWNED)
+        LabeledRadio("rowFilterMode", "2", "非所持のみ", state.rowFilter.mode == FilterMode.NOT_OWNED) {
+            model.updateRowFilter { copy(mode = FilterMode.NOT_OWNED) }
         }
-        LabeledRadio("rowFilterMode", "3", "カスタム", model.rowFilterMode == ViewModel.FilterMode.CUSTOM) {
-            model.updateRowFilterMode(ViewModel.FilterMode.CUSTOM)
+        LabeledRadio("rowFilterMode", "3", "カスタム", state.rowFilter.mode == FilterMode.CUSTOM) {
+            model.updateRowFilter { copy(mode = FilterMode.CUSTOM) }
         }
         Button({
-            if (model.rowFilterMode != ViewModel.FilterMode.CUSTOM) disabled()
+            if (state.rowFilter.mode != FilterMode.CUSTOM) disabled()
             onClick {
                 model.showRowCustomFilterDialog = true
             }
         }) {
             Text("設定")
         }
-        LabeledRadio("rowFilterMode", "4", "要素", model.rowFilterMode == ViewModel.FilterMode.RELATION) {
-            model.updateRowFilterMode(ViewModel.FilterMode.RELATION)
+        LabeledRadio("rowFilterMode", "4", "要素", state.rowFilter.mode == FilterMode.RELATION) {
+            model.updateRowFilter { copy(mode = FilterMode.RELATION) }
         }
         Button({
-            if (model.rowFilterMode != ViewModel.FilterMode.RELATION) disabled()
+            if (state.rowFilter.mode != FilterMode.RELATION) disabled()
             onClick {
                 model.showRowRelationFilterDialog = true
             }
@@ -138,9 +157,9 @@ fun CharaPanel(model: ViewModel) {
                 onClose { model.showRowCustomFilterDialog = false }
             }
         ) {
-            model.charaNameList.forEach { name ->
+            state.charaNameList.forEach { name ->
                 Div {
-                    LabeledCheckbox(name, name, model.rowCustomFilter[name] ?: false) {
+                    LabeledCheckbox(name, name, state.rowFilter.custom[name] ?: false) {
                         model.updateRowCustomFilter(name, it)
                     }
                 }
@@ -153,8 +172,8 @@ fun CharaPanel(model: ViewModel) {
                 onClose { model.showRowRelationFilterDialog = false }
             }
         ) {
-            val deleteEnabled = model.rowRelationFilter.size >= 2
-            model.rowRelationFilter.forEachIndexed { index, value ->
+            val deleteEnabled = state.rowFilter.relation.size >= 2
+            state.rowFilter.relation.forEachIndexed { index, value ->
                 Div({ style { display(DisplayStyle.Flex) } }) {
                     if (deleteEnabled) {
                         MwcButton({
@@ -165,12 +184,12 @@ fun CharaPanel(model: ViewModel) {
                             Text("削除")
                         }
                     }
-                    CharaSelect("", model.relationFilter, value) {
+                    CharaSelect("", state.charaList.relationFilter, value) {
                         model.setRowRelationFilter(index, it)
                     }
                 }
             }
-            if (model.rowRelationFilter.last() >= 0) {
+            if (state.rowFilter.relation.last() >= 0) {
                 Div {
                     MwcButton({
                         raised()
@@ -184,31 +203,31 @@ fun CharaPanel(model: ViewModel) {
     }
     Div {
         Text("列表示対象")
-        LabeledRadio("columnFilterMode", "0", "全て", model.columnFilterMode == ViewModel.FilterMode.NONE) {
-            model.updateColumnFilterMode(ViewModel.FilterMode.NONE)
+        LabeledRadio("columnFilterMode", "0", "全て", state.columnFilter.mode == FilterMode.NONE) {
+            model.updateColumnFilter { copy(mode = FilterMode.NONE) }
         }
-        LabeledRadio("columnFilterMode", "1", "所持のみ", model.columnFilterMode == ViewModel.FilterMode.OWNED) {
-            model.updateColumnFilterMode(ViewModel.FilterMode.OWNED)
+        LabeledRadio("columnFilterMode", "1", "所持のみ", state.columnFilter.mode == FilterMode.OWNED) {
+            model.updateColumnFilter { copy(mode = FilterMode.OWNED) }
         }
-        LabeledRadio("columnFilterMode", "2", "非所持のみ", model.columnFilterMode == ViewModel.FilterMode.NOT_OWNED) {
-            model.updateColumnFilterMode(ViewModel.FilterMode.NOT_OWNED)
+        LabeledRadio("columnFilterMode", "2", "非所持のみ", state.columnFilter.mode == FilterMode.NOT_OWNED) {
+            model.updateColumnFilter { copy(mode = FilterMode.NOT_OWNED) }
         }
-        LabeledRadio("columnFilterMode", "3", "カスタム", model.columnFilterMode == ViewModel.FilterMode.CUSTOM) {
-            model.updateColumnFilterMode(ViewModel.FilterMode.CUSTOM)
+        LabeledRadio("columnFilterMode", "3", "カスタム", state.columnFilter.mode == FilterMode.CUSTOM) {
+            model.updateColumnFilter { copy(mode = FilterMode.CUSTOM) }
         }
         Button({
-            if (model.columnFilterMode != ViewModel.FilterMode.CUSTOM) disabled()
+            if (state.columnFilter.mode != FilterMode.CUSTOM) disabled()
             onClick {
                 model.showColumnCustomFilterDialog = true
             }
         }) {
             Text("設定")
         }
-        LabeledRadio("columnFilterMode", "4", "要素", model.columnFilterMode == ViewModel.FilterMode.RELATION) {
-            model.updateColumnFilterMode(ViewModel.FilterMode.RELATION)
+        LabeledRadio("columnFilterMode", "4", "要素", state.columnFilter.mode == FilterMode.RELATION) {
+            model.updateColumnFilter { copy(mode = FilterMode.RELATION) }
         }
         Button({
-            if (model.columnFilterMode != ViewModel.FilterMode.RELATION) disabled()
+            if (state.columnFilter.mode != FilterMode.RELATION) disabled()
             onClick {
                 model.showColumnRelationFilterDialog = true
             }
@@ -224,9 +243,9 @@ fun CharaPanel(model: ViewModel) {
                 onClose { model.showColumnCustomFilterDialog = false }
             }
         ) {
-            model.columnList.forEach { name ->
+            state.charaList.columnList.forEach { name ->
                 Div {
-                    LabeledCheckbox(name, name, model.columnCustomFilter[name] ?: false) {
+                    LabeledCheckbox(name, name, state.columnFilter.custom[name] ?: false) {
                         model.updateColumnCustomFilter(name, it)
                     }
                 }
@@ -239,8 +258,8 @@ fun CharaPanel(model: ViewModel) {
                 onClose { model.showColumnRelationFilterDialog = false }
             }
         ) {
-            val deleteEnabled = model.columnRelationFilter.size >= 2
-            model.columnRelationFilter.forEachIndexed { index, value ->
+            val deleteEnabled = state.columnFilter.relation.size >= 2
+            state.columnFilter.relation.forEachIndexed { index, value ->
                 Div({ style { display(DisplayStyle.Flex) } }) {
                     if (deleteEnabled) {
                         MwcButton({
@@ -251,12 +270,12 @@ fun CharaPanel(model: ViewModel) {
                             Text("削除")
                         }
                     }
-                    CharaSelect("", model.relationFilter, value) {
+                    CharaSelect("", state.charaList.relationFilter, value) {
                         model.setColumnRelationFilter(index, it)
                     }
                 }
             }
-            if (model.columnRelationFilter.last() >= 0) {
+            if (state.columnFilter.relation.last() >= 0) {
                 Div {
                     MwcButton({
                         raised()

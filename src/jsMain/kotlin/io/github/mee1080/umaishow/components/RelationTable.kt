@@ -23,20 +23,21 @@ import io.github.mee1080.umaishow.components.mwc.MwcDialog
 import io.github.mee1080.umaishow.components.mwc.open
 import io.github.mee1080.umaishow.onClickOrTouch
 import io.github.mee1080.umaishow.style.AppStyleSheet
+import io.github.mee1080.umaishow.vm.State
 import io.github.mee1080.umaishow.vm.ViewModel
 import org.jetbrains.compose.web.dom.*
 
 @Composable
-fun RelationTable(model: ViewModel) {
+fun RelationTable(state: State, model: ViewModel) {
     Div {
         Table({
             classes(
-                *model.rowHideIndices.map { AppStyleSheet.hideRow[it] }.toTypedArray(),
-                *model.columnHideIndices.map { AppStyleSheet.hideColumn[it] }.toTypedArray(),
+                *state.rowHideIndices.map { AppStyleSheet.hideRow[it] }.toTypedArray(),
+                *state.columnHideIndices.map { AppStyleSheet.hideColumn[it] }.toTypedArray(),
             )
         }) {
             Tr {
-                Th({ classes(AppStyleSheet.column[model.ownedIndex]) }) {
+                Th({ classes(AppStyleSheet.column[state.charaList.ownedIndex]) }) {
                     Span({
                         classes(AppStyleSheet.verticalHeader)
                     }) { Text("所持") }
@@ -45,7 +46,7 @@ fun RelationTable(model: ViewModel) {
                     classes(AppStyleSheet.clickable)
                     onClickOrTouch { model.sort(-2) }
                 }) { Small { Text("列クリックでソート→") } }
-                if (model.childSelected) {
+                if (state.charaSelection.childSelected) {
                     Th {
                         Span({
                             classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
@@ -53,7 +54,7 @@ fun RelationTable(model: ViewModel) {
                         }) { Text("親相性") }
                     }
                 }
-                model.charaNameList.forEachIndexed { index, name ->
+                state.charaNameList.forEachIndexed { index, name ->
                     Th({ classes(AppStyleSheet.column[index]) }) {
                         Span({
                             classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
@@ -61,35 +62,35 @@ fun RelationTable(model: ViewModel) {
                         }) { Text(name) }
                     }
                 }
-                Th({ classes(AppStyleSheet.column[model.totalIndex]) }) {
+                Th({ classes(AppStyleSheet.column[state.charaList.totalIndex]) }) {
                     Span({
                         classes(AppStyleSheet.verticalHeader, AppStyleSheet.clickable)
-                        onClickOrTouch { model.sort(model.charaNameList.size) }
+                        onClickOrTouch { model.sort(state.charaNameList.size) }
                     }) { Text("合計") }
                 }
-                Th({ classes(AppStyleSheet.column[model.relationIndex]) }) {
+                Th({ classes(AppStyleSheet.column[state.charaList.relationIndex]) }) {
                     Span({ classes(AppStyleSheet.verticalHeader) }) { Text("要素") }
                 }
                 Th {
                     Span({ classes(AppStyleSheet.verticalHeader) }) { Text("名前") }
                 }
             }
-            model.relationTable.forEach { entry ->
+            state.relationTable.forEach { entry ->
                 Tr({ classes(AppStyleSheet.row[entry.index]) }) {
-                    Td({ classes(AppStyleSheet.column[model.ownedIndex]) }) {
-                        CheckboxInput(model.ownedChara[entry.name] ?: false) {
+                    Td({ classes(AppStyleSheet.column[state.charaList.ownedIndex]) }) {
+                        CheckboxInput(state.ownedChara[entry.name] ?: false) {
                             onChange { model.updateOwnedChara(entry.name, it.value) }
                         }
                     }
                     Th({ classes(AppStyleSheet.horizontalHeader) }) { Text(entry.name) }
-                    if (model.childSelected) {
+                    if (state.charaSelection.childSelected) {
                         RelationColumn(entry.parentRelation, "child", true)
                     }
                     entry.relationList.forEachIndexed { columnIndex, value ->
                         RelationColumn(value, AppStyleSheet.column[columnIndex], bold = false, colored = true)
                     }
-                    RelationColumn(entry.relationTotal, AppStyleSheet.column[model.totalIndex])
-                    Td({ classes(AppStyleSheet.column[model.relationIndex]) }) {
+                    RelationColumn(entry.relationTotal, AppStyleSheet.column[state.charaList.totalIndex])
+                    Td({ classes(AppStyleSheet.column[state.charaList.relationIndex]) }) {
                         Span({ classes(AppStyleSheet.relationColumn) }) {
                             Text(entry.info)
                             Button({
