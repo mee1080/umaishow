@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with umaishow.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.mee1080.umaishow.components
+package io.github.mee1080.umaishow.components.pages.chara
 
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.attributes.selected
@@ -27,7 +27,6 @@ import org.jetbrains.compose.web.dom.Option
 import org.jetbrains.compose.web.dom.Select
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.HTMLSelectElement
-import kotlin.math.min
 
 @Composable
 fun CharaSelect(

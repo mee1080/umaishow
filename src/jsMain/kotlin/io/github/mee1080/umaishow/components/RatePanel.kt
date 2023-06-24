@@ -19,6 +19,7 @@
 package io.github.mee1080.umaishow.components
 
 import androidx.compose.runtime.Composable
+import io.github.mee1080.umaishow.components.common.LabeledRadio
 import io.github.mee1080.umaishow.roundToPercentString
 import io.github.mee1080.umaishow.vm.State
 import io.github.mee1080.umaishow.vm.ViewModel

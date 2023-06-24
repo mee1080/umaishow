@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with umasim.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.mee1080.umaishow.components
+package io.github.mee1080.umaishow.components.common
 
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.attributes.name

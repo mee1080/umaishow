@@ -18,6 +18,7 @@
  */
 package io.github.mee1080.umaishow.vm
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,7 +29,8 @@ import io.github.mee1080.umaishow.replace
 import io.github.mee1080.umaishow.replaceAt
 import kotlin.math.min
 
-class ViewModel() {
+@Stable
+class ViewModel {
 
     var state by mutableStateOf(State())
 
@@ -45,6 +47,12 @@ class ViewModel() {
             copy(charaSelection = charaSelection.action())
         }
         updateRelationTable()
+    }
+
+    private fun updateTableState(action: TableState.() -> TableState) {
+        updateState {
+            copy(tableState = tableState.action())
+        }
     }
 
     fun updateOrderByRelation(value: Boolean) {
@@ -92,8 +100,8 @@ class ViewModel() {
     }
 
     fun updateOwnedChara(name: String, value: Boolean) {
-        updateState { copy(ownedChara = ownedChara.replace(name, value)) }
-        Preferences.saveOwnedChara(state.ownedChara.filterValues { it }.keys)
+        updateTableState { copy(ownedChara = ownedChara.replace(name, value)) }
+        Preferences.saveOwnedChara(state.tableState.ownedChara.filterValues { it }.keys)
     }
 
     fun autoSetParents() {
@@ -107,7 +115,7 @@ class ViewModel() {
             selection.parent11, selection.parent12, selection.parent21, selection.parent22
         )
         val targetList = CharaList.indexedCharaList
-            .filter { it.first != child && (state.autoSetParentsTarget == 0 || state.ownedChara[it.second] ?: false) }
+            .filter { it.first != child && (state.autoSetParentsTarget == 0 || state.tableState.ownedChara[it.second] ?: false) }
             .map { it.first }
             .sortedByDescending { Store.parent(child, it) }
         val p1List = (if (parent1 == -1) targetList else listOf(parent1))
@@ -202,35 +210,35 @@ class ViewModel() {
                 RelationInfo.getShortString(chara.second),
             )
         }
-        updateState { copy(rawRelationTable = table) }
+        updateTableState { copy(rawRelationTable = table, displayChild = selection.childSelected) }
         sortRelationTable()
     }
 
     private fun sortRelationTable() {
-        val table = state.rawRelationTable
-        val sorted = when (val sortKey = state.sortKey) {
+        val table = state.tableState.rawRelationTable
+        val sorted = when (val sortKey = state.tableState.sortKey) {
             -2 -> table
             -1 -> table.sortedByDescending { it.parentRelation }
             else -> table.sortedByDescending {
                 if (sortKey < it.relationList.size) it.relationList[sortKey] else it.relationTotal
             }
         }
-        updateState { copy(relationTable = sorted) }
+        updateTableState { copy(relationTable = sorted) }
     }
 
     fun sort(key: Int) {
-        updateState { copy(sortKey = key) }
+        updateTableState { copy(sortKey = key) }
         sortRelationTable()
     }
 
     fun updateRowFilter(action: FilterSetting.() -> FilterSetting) {
-        updateState { copy(rowFilter = rowFilter.action()) }
+        updateTableState { copy(rowFilter = rowFilter.action()) }
         applyRowFilter()
     }
 
     private fun applyRowFilter() {
-        updateState {
-            val rowHideIndices = charaList.nameList.mapIndexedNotNull { index, name ->
+        updateTableState {
+            val rowHideIndices = CharaList.nameList.mapIndexedNotNull { index, name ->
                 if (rowFilter.check(index, name, ownedChara)) null else index
             }
             copy(rowHideIndices = rowHideIndices)
@@ -241,40 +249,40 @@ class ViewModel() {
 
     fun updateRowCustomFilter(name: String, value: Boolean) {
         updateRowFilter { copy(custom = custom.replace(name, value)) }
-        Preferences.saveRowCustomFilter(state.rowFilter.custom.filterValues { it }.keys)
+        Preferences.saveRowCustomFilter(state.tableState.rowFilter.custom.filterValues { it }.keys)
     }
 
     fun updateRowCustomFilterAll() {
-        val value = !state.rowFilter.custom.values.any { it }
+        val value = !state.tableState.rowFilter.custom.values.any { it }
         updateRowFilter { copy(custom = custom.mapValues { value }) }
-        Preferences.saveRowCustomFilter(state.rowFilter.custom.filterValues { it }.keys)
+        Preferences.saveRowCustomFilter(state.tableState.rowFilter.custom.filterValues { it }.keys)
     }
 
     var showRowRelationFilterDialog by mutableStateOf(false)
 
     fun addRowRelationFilter() {
         updateRowFilter { copy(relation = relation + -1) }
-        Preferences.saveRowRelationFilter(state.rowFilter.relation.toList())
+        Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation.toList())
     }
 
     fun deleteRowRelationFilter(index: Int) {
         updateRowFilter { copy(relation = relation.removedAt(index)) }
-        Preferences.saveRowRelationFilter(state.rowFilter.relation.toList())
+        Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation.toList())
     }
 
     fun setRowRelationFilter(index: Int, value: Int) {
         updateRowFilter { copy(relation = relation.replaceAt(index, value)) }
-        Preferences.saveRowRelationFilter(state.rowFilter.relation.toList())
+        Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation.toList())
     }
 
     fun updateColumnFilter(action: FilterSetting.() -> FilterSetting) {
-        updateState { copy(columnFilter = columnFilter.action()) }
+        updateTableState { copy(columnFilter = columnFilter.action()) }
         applyColumnFilter()
     }
 
     private fun applyColumnFilter() {
-        updateState {
-            val columnHideIndices = charaList.nameList.mapIndexedNotNull { index, name ->
+        updateTableState {
+            val columnHideIndices = CharaList.nameList.mapIndexedNotNull { index, name ->
                 if (columnFilter.check(index, name, ownedChara)) null else index
             }
             copy(columnHideIndices = columnHideIndices)
@@ -285,30 +293,30 @@ class ViewModel() {
 
     fun updateColumnCustomFilter(name: String, value: Boolean) {
         updateColumnFilter { copy(custom = custom.replace(name, value)) }
-        Preferences.saveColumnCustomFilter(state.columnFilter.custom.filterValues { it }.keys)
+        Preferences.saveColumnCustomFilter(state.tableState.columnFilter.custom.filterValues { it }.keys)
     }
 
     fun updateColumnCustomFilterAll() {
-        val value = !state.columnFilter.custom.values.any { it }
+        val value = !state.tableState.columnFilter.custom.values.any { it }
         updateColumnFilter { copy(custom = custom.mapValues { value }) }
-        Preferences.saveColumnCustomFilter(state.columnFilter.custom.filterValues { it }.keys)
+        Preferences.saveColumnCustomFilter(state.tableState.columnFilter.custom.filterValues { it }.keys)
     }
 
     var showColumnRelationFilterDialog by mutableStateOf(false)
 
     fun addColumnRelationFilter() {
         updateColumnFilter { copy(relation = relation + -1) }
-        Preferences.saveColumnRelationFilter(state.columnFilter.relation.toList())
+        Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
     }
 
     fun deleteColumnRelationFilter(index: Int) {
         updateColumnFilter { copy(relation = relation.removedAt(index)) }
-        Preferences.saveColumnRelationFilter(state.columnFilter.relation.toList())
+        Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
     }
 
     fun setColumnRelationFilter(index: Int, value: Int) {
         updateColumnFilter { copy(relation = relation.replaceAt(index, value)) }
-        Preferences.saveColumnRelationFilter(state.columnFilter.relation.toList())
+        Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
     }
 
     enum class Type(private val display: String) {

@@ -18,11 +18,10 @@
  */
 package io.github.mee1080.umaishow
 
-import io.github.mee1080.umaishow.components.CharaPanel
+import io.github.mee1080.umaishow.components.pages.chara.CharaPanel
 import io.github.mee1080.umaishow.components.RatePanel
-import io.github.mee1080.umaishow.components.RelationTable
 import io.github.mee1080.umaishow.components.mwc.initLibraries
-import io.github.mee1080.umaishow.data.Store
+import io.github.mee1080.umaishow.components.pages.table.TablePage
 import io.github.mee1080.umaishow.style.AppStyleSheet
 import io.github.mee1080.umaishow.vm.ViewModel
 import org.jetbrains.compose.web.attributes.ATarget
@@ -41,7 +40,7 @@ fun main() {
     renderComposable(rootElementId = "root") {
         Style(AppStyleSheet)
         CharaPanel(model.state, model)
-        RelationTable(model.state, model)
+        TablePage(model.state.tableState, model)
         if (model.state.charaSelection.childSelected) {
             RatePanel(model.state, model)
         }

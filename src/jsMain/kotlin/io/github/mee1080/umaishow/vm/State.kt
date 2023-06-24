@@ -12,10 +12,19 @@ data class State(
     val page: Page = Page.Table,
     val charaSelection: CharaSelection = CharaSelection(),
     val autoSetParentsTarget: Int = Preferences.loadAutoSetParentsTarget(),
+    val tableState: TableState = TableState(),
+) {
+    val charaList = CharaList
+
+    val charaNameList get() = charaList.nameList
+}
+
+data class TableState(
     val ownedChara: Map<String, Boolean> = loadCharaNameMap(Preferences.loadOwnedChara()),
     val rawRelationTable: List<RelationTableEntry> = emptyList(),
     val sortKey: Int = -2,
     val relationTable: List<RelationTableEntry> = emptyList(),
+    val displayChild: Boolean = false,
     val rowFilter: FilterSetting = FilterSetting(
         custom = loadCharaNameMap(Preferences.loadRowCustomFilter()),
         relation = Preferences.loadRowRelationFilter(),
@@ -26,11 +35,7 @@ data class State(
         relation = Preferences.loadColumnRelationFilter(),
     ),
     val columnHideIndices: List<Int> = emptyList(),
-) {
-    val charaList = CharaList
-
-    val charaNameList get() = charaList.nameList
-}
+)
 
 private fun loadCharaNameMap(saved: List<String>, target: List<String> = CharaList.nameList): Map<String, Boolean> {
     return mapOf(*(target.map { it to saved.contains(it) }).toTypedArray())
@@ -38,6 +43,7 @@ private fun loadCharaNameMap(saved: List<String>, target: List<String> = CharaLi
 
 object CharaList {
     val charaList = Store.charaList
+    val charaCount = charaList.size
     val nameList = charaList.map { it.first }
     val charaRelation = Store.charaList.map { it.second }
     val indexedCharaList = nameList.mapIndexed { index, name -> index to name }
