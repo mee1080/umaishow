@@ -76,6 +76,13 @@ data class CharaSelection(
 
     val childSelected = child >= 0
 
+    val parent1Name = "親1 : " + getCharaName(parent1)
+    val parent2Name = "親2 : " + getCharaName(parent2)
+    val parent11Name = "祖1-1 : " + getCharaName(parent11)
+    val parent12Name = "祖1-2 : " + getCharaName(parent12)
+    val parent21Name = "祖2-1 : " + getCharaName(parent21)
+    val parent22Name = "祖2-2 : " + getCharaName(parent22)
+
     val parent1List = generateParentList { Store.parent(child, it) to calcTotalRelation(parent1 = it) }
     val parent2List = generateParentList { Store.parent(child, it) to calcTotalRelation(parent2 = it) }
     val parent11List = generateParentList { Store.grandParent(child, parent1, it) to calcTotalRelation(parent11 = it) }
@@ -111,6 +118,8 @@ data class CharaSelection(
         }
         return listOf(-1 to "未選択") + list.map { it.first to it.second }
     }
+
+    private fun getCharaName(index: Int) = CharaList.nameList.getOrElse(index) { "未選択" }
 }
 
 class RelationTableEntry(
@@ -164,10 +173,11 @@ data class CalcSetting(
     val baseRate: List<Double> = listOf(0.0, 0.02, 0.04, 0.06),
     val parentBonus: Int = 20,
 
-    val initialProperValue: List<Rank> = listOf(Rank.C, Rank.A, Rank.A),
+    val initialProperValue: List<Rank> = listOf(Rank.G, Rank.A, Rank.A),
     val goalProperValue: List<Rank> = listOf(Rank.A, Rank.S, Rank.A),
     val properType: List<Type> = List(6) { if (it == 1) Type.Distance else Type.Ground },
     val properLevel: List<Int> = List(6) { 3 },
+    val bonusCount: List<Int> = List(6) { 0 },
 )
 
 class CalcResult(
@@ -178,6 +188,7 @@ class CalcResult(
     val rate21: Double = 0.0,
     val rate22: Double = 0.0,
 
+    val initialProperValue: List<Rank> = List(3) { Rank.G },
     val groundRate: List<Double> = List(8) { 0.0 },
     val distanceRate: List<Double> = List(8) { 0.0 },
     val runningTypeRate: List<Double> = List(8) { 0.0 },
