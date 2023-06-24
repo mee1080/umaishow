@@ -23,10 +23,13 @@ import io.github.mee1080.umaishow.components.pages.calc.RatePanel
 import io.github.mee1080.umaishow.components.pages.chara.CharaPanel
 import io.github.mee1080.umaishow.components.pages.table.TablePage
 import io.github.mee1080.umaishow.style.AppStyleSheet
+import io.github.mee1080.umaishow.vm.Page
 import io.github.mee1080.umaishow.vm.ViewModel
+import io.github.mee1080.umasim.web.components.material.MwcTabBar
 import org.jetbrains.compose.web.attributes.ATarget
 import org.jetbrains.compose.web.attributes.target
 import org.jetbrains.compose.web.css.Style
+import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.A
@@ -40,9 +43,21 @@ fun main() {
     renderComposable(rootElementId = "root") {
         Style(AppStyleSheet)
         CharaPanel(model.state, model)
-        TablePage(model.state.tableState, model)
-        if (model.state.charaSelection.childSelected) {
-            RatePanel(model.state.calcState, model.state.charaSelection, model)
+        MwcTabBar(
+            Page.values().asList(),
+            model.state.page,
+            { it.displayName },
+            { it.icon },
+            onSelect = { model.navigate(it) },
+        ) {
+            style {
+                marginTop(8.px)
+                marginBottom(8.px)
+            }
+        }
+        when (model.state.page) {
+            Page.Table -> TablePage(model.state.tableState, model)
+            Page.Calc -> RatePanel(model.state.calcState, model.state.charaSelection, model)
         }
         Hr { style { marginTop(16.px) } }
         A(

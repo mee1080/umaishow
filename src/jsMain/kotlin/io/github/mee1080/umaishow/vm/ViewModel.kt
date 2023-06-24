@@ -54,6 +54,10 @@ class ViewModel {
         }
     }
 
+    fun navigate(page: Page) {
+        updateState { copy(page = page) }
+    }
+
     fun updateOrderByRelation(value: Boolean) {
         updateSelection { copy(orderByRelation = value) }
         Preferences.saveParentSortOrder(value)

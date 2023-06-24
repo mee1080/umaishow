@@ -5,7 +5,7 @@ import io.github.mee1080.umaishow.data.Store
 
 enum class Page(val displayName: String, val icon: String) {
     Table("相性表", "table_view"),
-    Calc("発動率計算", "calculate"),
+    Calc("魔改造計算", "calculate"),
 }
 
 data class State(

@@ -55,6 +55,8 @@ class CssVar<T : StylePropertyValue>(
 fun initLibraries() {
     require("@material/mwc-button")
     require("@material/mwc-dialog")
+    require("@material/mwc-tab")
+    require("@material/mwc-tab-bar")
 }
 
 val StyleScope.themePrimary get() = CssVar(this, "--mdc-theme-primary") { Color("#6200ee") }

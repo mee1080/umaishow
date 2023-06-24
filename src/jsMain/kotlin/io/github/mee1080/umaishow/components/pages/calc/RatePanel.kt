@@ -198,9 +198,9 @@ private fun FactorSelect(
         if (index != 1) {
             Div {
                 if (index == 0) {
-                    Text("親同士の共通重賞勝利数：")
+                    Text("親同士の共通GI勝利数：")
                 } else {
-                    Text("親との共通重賞勝利数：")
+                    Text("親との共通GI勝利数：")
                 }
                 NumberInput(setting.bonusCount[index]) {
                     onInput { e -> e.value?.let { viewModel.updateCalcBonusCount(index, it) } }
