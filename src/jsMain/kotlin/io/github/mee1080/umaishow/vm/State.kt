@@ -6,6 +6,7 @@ import io.github.mee1080.umaishow.data.Store
 enum class Page(val displayName: String, val icon: String) {
     Table("相性表", "table_view"),
     Calc("魔改造計算", "calculate"),
+    Factor("因子周回", "autorenew"),
 }
 
 data class State(
@@ -14,6 +15,7 @@ data class State(
     val autoSetParentsTarget: Int = Preferences.loadAutoSetParentsTarget(),
     val tableState: TableState = TableState(),
     val calcState: CalcState = CalcState(),
+    val factorState: FactorState = FactorState(),
 ) {
     val charaList = CharaList
 
@@ -194,4 +196,13 @@ class CalcResult(
     val runningTypeRate: List<Double> = List(8) { 0.0 },
 
     val goalRate: Double = 0.0,
+)
+
+data class FactorState(
+    val realSuccessRate: Int = 50,
+    val circlingSuccessRate: Int = 200,
+    val circlingRealSuccessRate: Int = 80,
+    val challengeCount: Int = 20,
+    val result: List<Pair<Double, Double>> = emptyList(),
+    val maxRateIndex: Int = 0,
 )

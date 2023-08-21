@@ -44,6 +44,21 @@ object AppStyleSheet : StyleSheet() {
         }
     }
 
+    val table by style {
+        property("border-collapse", "collapse")
+
+        self + " th" style {
+            border(1.px, LineStyle.Solid, Color("black"))
+            width(80.px)
+        }
+
+        self + " td" style {
+            textAlign("right")
+            border(1.px, LineStyle.Solid, Color("black"))
+            width(80.px)
+        }
+    }
+
     val verticalHeader by style {
         property("writing-mode", "vertical-rl")
         property("text-align", "right")

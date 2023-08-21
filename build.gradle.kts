@@ -1,6 +1,6 @@
 plugins {
-    kotlin("multiplatform") version "1.8.20"
-    id("org.jetbrains.compose") version "1.4.0"
+    kotlin("multiplatform") version "1.9.0"
+    id("org.jetbrains.compose") version "1.4.3"
 }
 
 group = "io.github.mee1080.umaishow"

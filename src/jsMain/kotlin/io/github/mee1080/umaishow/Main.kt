@@ -21,6 +21,7 @@ package io.github.mee1080.umaishow
 import io.github.mee1080.umaishow.components.mwc.initLibraries
 import io.github.mee1080.umaishow.components.pages.calc.RatePanel
 import io.github.mee1080.umaishow.components.pages.chara.CharaPanel
+import io.github.mee1080.umaishow.components.pages.factor.FactorPanel
 import io.github.mee1080.umaishow.components.pages.table.TablePage
 import io.github.mee1080.umaishow.style.AppStyleSheet
 import io.github.mee1080.umaishow.vm.Page
@@ -58,6 +59,7 @@ fun main() {
         when (model.state.page) {
             Page.Table -> TablePage(model.state.tableState, model)
             Page.Calc -> RatePanel(model.state.calcState, model.state.charaSelection, model)
+            Page.Factor -> FactorPanel(model.state.factorState, model)
         }
         Hr { style { marginTop(16.px) } }
         A(

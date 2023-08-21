@@ -27,6 +27,7 @@ import io.github.mee1080.umaishow.data.Store
 import io.github.mee1080.umaishow.removedAt
 import io.github.mee1080.umaishow.replace
 import io.github.mee1080.umaishow.replaceAt
+import kotlin.random.Random
 
 @Stable
 class ViewModel {
@@ -377,5 +378,51 @@ class ViewModel {
     fun showRelationInfo(index: Int) {
         displayRelationInfo =
             listOf(CharaList.nameList[index]) + RelationInfo.getLongString(CharaList.charaRelation[index])
+    }
+
+    fun updateFactorState(action: FactorState.() -> FactorState) {
+        updateState { copy(factorState = factorState.action()) }
+    }
+
+    fun calcFactorState() {
+        val factorState = state.factorState
+        val realSuccessRate = factorState.realSuccessRate / 1000.0
+        val circlingSuccessRate = factorState.circlingSuccessRate / 1000.0
+        val circlingRealSuccessRate = factorState.circlingRealSuccessRate / 1000.0
+        var maxRate = 0.0
+        var maxIndex = 0
+        val result = List(factorState.challengeCount) { circlingMax ->
+            val result = List(500000) {
+                calcFactor(realSuccessRate, circlingSuccessRate, circlingRealSuccessRate, circlingMax)
+            }
+            val average = result.average()
+            val rate = result.count { it <= factorState.challengeCount }.toDouble() / result.size
+            if (rate > maxRate) {
+                maxRate = rate
+                maxIndex = circlingMax
+            }
+            average to rate
+        }
+        updateFactorState { copy(result = result, maxRateIndex = maxIndex) }
+    }
+
+    private fun calcFactor(
+        realSuccessRate: Double,
+        circlingSuccessRate: Double,
+        circlingRealSuccessRate: Double,
+        circlingMax: Int,
+    ): Int {
+        var success = false
+        for (i in 0 until Int.MAX_VALUE) {
+            if (!success && i < circlingMax) {
+                success = Random.nextDouble() < circlingSuccessRate
+            } else {
+                val rate = if (success) circlingRealSuccessRate else realSuccessRate
+                if (Random.nextDouble() < rate) {
+                    return i + 1
+                }
+            }
+        }
+        return Int.MAX_VALUE
     }
 }
