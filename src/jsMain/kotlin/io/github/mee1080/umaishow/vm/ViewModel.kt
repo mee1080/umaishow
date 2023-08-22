@@ -27,6 +27,7 @@ import io.github.mee1080.umaishow.data.Store
 import io.github.mee1080.umaishow.removedAt
 import io.github.mee1080.umaishow.replace
 import io.github.mee1080.umaishow.replaceAt
+import kotlin.math.pow
 import kotlin.random.Random
 
 @Stable
@@ -389,21 +390,32 @@ class ViewModel {
         val realSuccessRate = factorState.realSuccessRate / 1000.0
         val circlingSuccessRate = factorState.circlingSuccessRate / 1000.0
         val circlingRealSuccessRate = factorState.circlingRealSuccessRate / 1000.0
+        val challengeCount = factorState.challengeCount
         var maxRate = 0.0
         var maxIndex = 0
         val result = List(factorState.challengeCount) { circlingMax ->
-            val result = List(500000) {
-                calcFactor(realSuccessRate, circlingSuccessRate, circlingRealSuccessRate, circlingMax)
-            }
-            val average = result.average()
-            val rate = result.count { it <= factorState.challengeCount }.toDouble() / result.size
+            val rate = calc(realSuccessRate, circlingSuccessRate, circlingRealSuccessRate, challengeCount, circlingMax)
             if (rate > maxRate) {
                 maxRate = rate
                 maxIndex = circlingMax
             }
-            average to rate
+            rate
         }
         updateFactorState { copy(result = result, maxRateIndex = maxIndex) }
+    }
+
+    private fun calc(
+        realSuccessRate: Double,
+        circlingSuccessRate: Double,
+        circlingRealSuccessRate: Double,
+        challengeCount: Int,
+        circlingMax: Int,
+    ): Double {
+        return (1..circlingMax).sumOf {
+            (1 - circlingSuccessRate).pow(it - 1) *
+                    circlingSuccessRate *
+                    (1 - (1 - circlingRealSuccessRate).pow(challengeCount - it))
+        } + (1 - circlingSuccessRate).pow(circlingMax) * (1 - (1 - realSuccessRate).pow(challengeCount - circlingMax))
     }
 
     private fun calcFactor(

@@ -13,7 +13,8 @@ fun LabeledSlider(
     min: Number,
     max: Number,
     valueToLabel: (Number) -> String = { it.toString() },
-    onChange: (Number) -> Unit,
+    onChange: (Number) -> Unit = {},
+    onInput: (Number) -> Unit,
 ) {
     Div({
         style {
@@ -34,7 +35,8 @@ fun LabeledSlider(
                 flexGrow(1)
                 maxWidth(600.px)
             }
-            onInput(onChange)
+            onChange(onChange)
+            onInput(onInput)
         }
     }
 }

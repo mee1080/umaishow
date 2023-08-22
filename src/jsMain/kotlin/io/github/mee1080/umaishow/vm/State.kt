@@ -203,6 +203,6 @@ data class FactorState(
     val circlingSuccessRate: Int = 200,
     val circlingRealSuccessRate: Int = 80,
     val challengeCount: Int = 20,
-    val result: List<Pair<Double, Double>> = emptyList(),
+    val result: List<Double> = emptyList(),
     val maxRateIndex: Int = 0,
 )
