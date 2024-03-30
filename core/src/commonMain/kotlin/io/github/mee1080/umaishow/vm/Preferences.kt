@@ -1,6 +1,25 @@
+/*
+ * Copyright 2024 mee1080
+ *
+ * This file is part of umaishow.
+ *
+ * umaishow is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * umaishow is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with umaishow.  If not, see <https://www.gnu.org/licenses/>.
+ */
 package io.github.mee1080.umaishow.vm
 
-import kotlinx.browser.localStorage
+internal expect fun save(key: String, value: String)
+internal expect fun load(key: String): String?
 
 object Preferences {
 
@@ -21,7 +40,13 @@ object Preferences {
     fun saveOwnedChara(value: Collection<String>) = save(KEY_OWNED_CHARA, value.joinToString(","))
 
     fun loadOwnedChara() =
-        load(KEY_OWNED_CHARA)?.split(",") ?: listOf("サクラバクシンオー", "ハルウララ", "ダイワスカーレット", "ウオッカ", "ゴールドシップ")
+        load(KEY_OWNED_CHARA)?.split(",") ?: listOf(
+            "サクラバクシンオー",
+            "ハルウララ",
+            "ダイワスカーレット",
+            "ウオッカ",
+            "ゴールドシップ"
+        )
 
     private const val KEY_ROW_CUSTOM_FILTER = "RowCustomFilter"
 
@@ -50,8 +75,4 @@ object Preferences {
         load(KEY_COLUMN_RELATION_FILTER)?.split(",")?.mapNotNull { it.toIntOrNull() } ?: listOf(-1)
 
     fun saveColumnRelationFilter(value: Collection<Int>) = save(KEY_COLUMN_RELATION_FILTER, value.joinToString(","))
-
-    private fun save(key: String, value: String) = localStorage.setItem(key, value)
-
-    private fun load(key: String) = localStorage.getItem(key)
 }

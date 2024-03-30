@@ -17,6 +17,7 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
+                implementation(project(":core"))
                 implementation(compose.html.core)
                 implementation(compose.runtime)
                 implementation(libs.kotlinx.collections.immutable)
