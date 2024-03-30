@@ -148,17 +148,19 @@ data class FilterSetting(
     val custom: ImmutableMap<String, Boolean> = persistentMapOf(),
     val relation: ImmutableList<Int> = persistentListOf(),
 ) {
-    fun check(index: Int, name: String, ownedChara: Map<String, Boolean>) = when (mode) {
-        FilterMode.NONE -> true
-        FilterMode.OWNED -> ownedChara[name] ?: false
-        FilterMode.NOT_OWNED -> !(ownedChara[name] ?: false)
-        FilterMode.CUSTOM -> custom[name] ?: false
-        FilterMode.RELATION -> {
+    private val checker: (index: Int, name: String, ownedChara: Map<String, Boolean>) -> Boolean = when (mode) {
+        FilterMode.NONE -> { _, _, _ -> true }
+        FilterMode.OWNED -> { _, name, ownedChara -> ownedChara[name] ?: false }
+        FilterMode.NOT_OWNED -> { _, name, ownedChara -> !(ownedChara[name] ?: false) }
+        FilterMode.CUSTOM -> { _, name, _ -> custom[name] ?: false }
+        FilterMode.RELATION -> { index, _, _ ->
             CharaList.charaRelation.getOrNull(index)?.let { charaRelation ->
                 relation.all { it < 0 || charaRelation.contains(it) }
             } ?: true
         }
     }
+
+    fun check(index: Int, name: String, ownedChara: Map<String, Boolean>) = checker(index, name, ownedChara)
 }
 
 data class CalcState(
