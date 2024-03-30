@@ -18,31 +18,37 @@
  */
 package io.github.mee1080.umaishow.data
 
+import io.github.mee1080.umaishow.PersistentList
+import io.github.mee1080.umaishow.mapImmutable
+import io.github.mee1080.umaishow.mapIndexedImmutable
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableSet
+
 object Store {
-    val charaList = Source.chara
+    val charaList = Source.chara.mapImmutable { it.first to it.second.toImmutableSet() }
 
-    val charaNameList = charaList.map { it.first }
+    val charaNameList = charaList.mapImmutable { it.first }
 
-    val charaRelation = charaList.map { it.second }
+    val charaRelation = charaList.mapImmutable { it.second }
 
     private val charaRange = charaList.indices
 
-    private val parentRelation = List(charaList.size) { child ->
+    private val parentRelation = PersistentList(charaList.size) { child ->
         val childSet = charaList[child].second
-        List(charaList.size) { parent ->
-            if (child == parent) emptySet() else childSet.intersect(charaList[parent].second)
+        PersistentList(charaList.size) { parent ->
+            if (child == parent) persistentSetOf() else childSet.intersect(charaList[parent].second).toImmutableSet()
         }
     }
 
-    private val parentMap = parentRelation.map { sets ->
-        sets.map { set ->
+    private val parentMap = parentRelation.mapImmutable { sets ->
+        sets.mapImmutable { set ->
             set.sumOf { Source.relation[it]!! }
         }
     }
 
-    private val grandParentMap = parentRelation.mapIndexed { child, sets ->
-        sets.mapIndexed { parent, set ->
-            List(charaList.size) { grand ->
+    private val grandParentMap = parentRelation.mapIndexedImmutable { child, sets ->
+        sets.mapIndexedImmutable { parent, set ->
+            PersistentList(charaList.size) { grand ->
                 if (child == grand || parent == grand) 0 else set.intersect(charaList[grand].second)
                     .sumOf { Source.relation[it]!! }
             }
@@ -56,9 +62,7 @@ object Store {
             parentMap[index1][index2]
         } else 0
 
-    fun grandParentList(index1: Int, index2: Int): List<Int> {
-        return grandParentMap[index1][index2]
-    }
+    fun grandParentList(index1: Int, index2: Int) = grandParentMap[index1][index2]
 
     fun grandParent(index1: Int, index2: Int, index3: Int) =
         if (index1 in charaRange && index2 in charaRange && index3 in charaRange) {

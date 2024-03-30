@@ -1,7 +1,9 @@
 package io.github.mee1080.umaishow.vm
 
+import io.github.mee1080.umaishow.PersistentList
 import io.github.mee1080.umaishow.data.RelationInfo
 import io.github.mee1080.umaishow.data.Store
+import kotlinx.collections.immutable.*
 
 enum class Page(val displayName: String, val icon: String) {
     Table("相性表", "table_view"),
@@ -23,36 +25,39 @@ data class State(
 }
 
 data class TableState(
-    val ownedChara: Map<String, Boolean> = loadCharaNameMap(Preferences.loadOwnedChara()),
-    val rawRelationTable: List<RelationTableEntry> = emptyList(),
+    val ownedChara: ImmutableMap<String, Boolean> = loadCharaNameMap(Preferences.loadOwnedChara()),
+    val rawRelationTable: ImmutableList<RelationTableEntry> = persistentListOf(),
     val sortKey: Int = -2,
-    val relationTable: List<RelationTableEntry> = emptyList(),
+    val relationTable: ImmutableList<RelationTableEntry> = persistentListOf(),
     val displayChild: Boolean = false,
     val rowFilter: FilterSetting = FilterSetting(
         custom = loadCharaNameMap(Preferences.loadRowCustomFilter()),
-        relation = Preferences.loadRowRelationFilter(),
+        relation = Preferences.loadRowRelationFilter().toImmutableList(),
     ),
-    val rowHideIndices: List<Int> = emptyList(),
+    val rowHideIndices: ImmutableList<Int> = persistentListOf(),
     val columnFilter: FilterSetting = FilterSetting(
         custom = loadCharaNameMap(Preferences.loadColumnCustomFilter(), CharaList.columnList),
-        relation = Preferences.loadColumnRelationFilter(),
+        relation = Preferences.loadColumnRelationFilter().toImmutableList(),
     ),
-    val columnHideIndices: List<Int> = emptyList(),
+    val columnHideIndices: ImmutableList<Int> = persistentListOf(),
 )
 
-private fun loadCharaNameMap(saved: List<String>, target: List<String> = CharaList.nameList): Map<String, Boolean> {
-    return mapOf(*(target.map { it to saved.contains(it) }).toTypedArray())
+private fun loadCharaNameMap(
+    saved: List<String>,
+    target: List<String> = CharaList.nameList,
+): ImmutableMap<String, Boolean> {
+    return persistentMapOf(*(target.map { it to saved.contains(it) }).toTypedArray())
 }
 
 object CharaList {
     val charaList = Store.charaList
     val charaCount = charaList.size
-    val nameList = charaList.map { it.first }
-    val charaRelation = Store.charaList.map { it.second }
-    val indexedCharaList = nameList.mapIndexed { index, name -> index to name }
-    val childList = listOf(-1 to "2世代相性") + indexedCharaList
-    val relationFilter = listOf(-1 to "未設定") + RelationInfo.filters
-    val columnList = nameList + listOf("合計", "要素", "所持")
+    val nameList = Store.charaNameList
+    val charaRelation = Store.charaRelation
+    val indexedCharaList = nameList.mapIndexed { index, name -> index to name }.toImmutableList()
+    val childList = (listOf(-1 to "2世代相性") + indexedCharaList).toImmutableList()
+    val relationFilter = (listOf(-1 to "未設定") + RelationInfo.filters).toImmutableList()
+    val columnList = (nameList + listOf("合計", "要素", "所持")).toImmutableList()
     val ownedIndex = columnList.lastIndex
     val relationIndex = columnList.lastIndex - 1
     val totalIndex = columnList.lastIndex - 2
@@ -128,7 +133,7 @@ class RelationTableEntry(
     val index: Int,
     val name: String,
     val parentRelation: Int,
-    val relationList: List<Int>,
+    val relationList: ImmutableList<Int>,
     val info: String,
 ) {
     val relationTotal = relationList.sum()
@@ -140,8 +145,8 @@ enum class FilterMode {
 
 data class FilterSetting(
     val mode: FilterMode = FilterMode.NONE,
-    val custom: Map<String, Boolean> = emptyMap(),
-    val relation: List<Int> = emptyList(),
+    val custom: ImmutableMap<String, Boolean> = persistentMapOf(),
+    val relation: ImmutableList<Int> = persistentListOf(),
 ) {
     fun check(index: Int, name: String, ownedChara: Map<String, Boolean>) = when (mode) {
         FilterMode.NONE -> true
@@ -172,14 +177,14 @@ enum class Rank {
 }
 
 data class CalcSetting(
-    val baseRate: List<Double> = listOf(0.0, 0.02, 0.04, 0.06),
+    val baseRate: ImmutableList<Double> = persistentListOf(0.0, 0.02, 0.04, 0.06),
     val parentBonus: Int = 20,
 
-    val initialProperValue: List<Rank> = listOf(Rank.G, Rank.A, Rank.A),
-    val goalProperValue: List<Rank> = listOf(Rank.A, Rank.S, Rank.A),
-    val properType: List<Type> = List(6) { if (it == 1) Type.Distance else Type.Ground },
-    val properLevel: List<Int> = List(6) { 3 },
-    val bonusCount: List<Int> = List(6) { 0 },
+    val initialProperValue: ImmutableList<Rank> = persistentListOf(Rank.G, Rank.A, Rank.A),
+    val goalProperValue: ImmutableList<Rank> = persistentListOf(Rank.A, Rank.S, Rank.A),
+    val properType: ImmutableList<Type> = PersistentList(6) { if (it == 1) Type.Distance else Type.Ground },
+    val properLevel: ImmutableList<Int> = PersistentList(6) { 3 },
+    val bonusCount: ImmutableList<Int> = PersistentList(6) { 0 },
 )
 
 class CalcResult(
@@ -190,10 +195,10 @@ class CalcResult(
     val rate21: Double = 0.0,
     val rate22: Double = 0.0,
 
-    val initialProperValue: List<Rank> = List(3) { Rank.G },
-    val groundRate: List<Double> = List(8) { 0.0 },
-    val distanceRate: List<Double> = List(8) { 0.0 },
-    val runningTypeRate: List<Double> = List(8) { 0.0 },
+    val initialProperValue: ImmutableList<Rank> = PersistentList(3) { Rank.G },
+    val groundRate: ImmutableList<Double> = PersistentList(8) { 0.0 },
+    val distanceRate: ImmutableList<Double> = PersistentList(8) { 0.0 },
+    val runningTypeRate: ImmutableList<Double> = PersistentList(8) { 0.0 },
 
     val goalRate: Double = 0.0,
 )
@@ -203,6 +208,6 @@ data class FactorState(
     val circlingSuccessRate: Int = 200,
     val circlingRealSuccessRate: Int = 80,
     val challengeCount: Int = 20,
-    val result: List<Double> = emptyList(),
+    val result: ImmutableList<Double> = persistentListOf(),
     val maxRateIndex: Int = 0,
 )

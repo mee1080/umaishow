@@ -22,11 +22,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import io.github.mee1080.umaishow.*
 import io.github.mee1080.umaishow.data.RelationInfo
 import io.github.mee1080.umaishow.data.Store
-import io.github.mee1080.umaishow.removedAt
-import io.github.mee1080.umaishow.replace
-import io.github.mee1080.umaishow.replaceAt
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlin.math.pow
 import kotlin.random.Random
 
@@ -105,7 +105,7 @@ class ViewModel {
     }
 
     fun updateOwnedChara(name: String, value: Boolean) {
-        updateTableState { copy(ownedChara = ownedChara.replace(name, value)) }
+        updateTableState { copy(ownedChara = ownedChara.replace(name, value).toImmutableMap()) }
         Preferences.saveOwnedChara(state.tableState.ownedChara.filterValues { it }.keys)
     }
 
@@ -198,7 +198,7 @@ class ViewModel {
     private fun updateRelationTable() {
         val selection = state.charaSelection
         val child = selection.child
-        val table = if (selection.childSelected) CharaList.charaList.mapIndexed { index, chara ->
+        val table = if (selection.childSelected) CharaList.charaList.mapIndexedImmutable { index, chara ->
             RelationTableEntry(
                 index,
                 chara.first,
@@ -206,7 +206,7 @@ class ViewModel {
                 Store.grandParentList(child, index),
                 RelationInfo.getShortString(chara.second),
             )
-        } else CharaList.charaList.mapIndexed { index, chara ->
+        } else CharaList.charaList.mapIndexedImmutable { index, chara ->
             RelationTableEntry(
                 index,
                 chara.first,
@@ -223,10 +223,10 @@ class ViewModel {
         val table = state.tableState.rawRelationTable
         val sorted = when (val sortKey = state.tableState.sortKey) {
             -2 -> table
-            -1 -> table.sortedByDescending { it.parentRelation }
+            -1 -> table.sortedByDescending { it.parentRelation }.toImmutableList()
             else -> table.sortedByDescending {
                 if (sortKey < it.relationList.size) it.relationList[sortKey] else it.relationTotal
-            }
+            }.toImmutableList()
         }
         updateTableState { copy(relationTable = sorted) }
     }
@@ -245,7 +245,7 @@ class ViewModel {
         updateTableState {
             val rowHideIndices = CharaList.nameList.mapIndexedNotNull { index, name ->
                 if (rowFilter.check(index, name, ownedChara)) null else index
-            }
+            }.toImmutableList()
             copy(rowHideIndices = rowHideIndices)
         }
     }
@@ -253,30 +253,30 @@ class ViewModel {
     var showRowCustomFilterDialog by mutableStateOf(false)
 
     fun updateRowCustomFilter(name: String, value: Boolean) {
-        updateRowFilter { copy(custom = custom.replace(name, value)) }
+        updateRowFilter { copy(custom = custom.replace(name, value).toImmutableMap()) }
         Preferences.saveRowCustomFilter(state.tableState.rowFilter.custom.filterValues { it }.keys)
     }
 
     fun updateRowCustomFilterAll() {
         val value = !state.tableState.rowFilter.custom.values.any { it }
-        updateRowFilter { copy(custom = custom.mapValues { value }) }
+        updateRowFilter { copy(custom = custom.mapValues { value }.toImmutableMap()) }
         Preferences.saveRowCustomFilter(state.tableState.rowFilter.custom.filterValues { it }.keys)
     }
 
     var showRowRelationFilterDialog by mutableStateOf(false)
 
     fun addRowRelationFilter() {
-        updateRowFilter { copy(relation = relation + -1) }
+        updateRowFilter { copy(relation = (relation + -1).toImmutableList()) }
         Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation.toList())
     }
 
     fun deleteRowRelationFilter(index: Int) {
-        updateRowFilter { copy(relation = relation.removedAt(index)) }
+        updateRowFilter { copy(relation = relation.removedAt(index).toImmutableList()) }
         Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation.toList())
     }
 
     fun setRowRelationFilter(index: Int, value: Int) {
-        updateRowFilter { copy(relation = relation.replaceAt(index, value)) }
+        updateRowFilter { copy(relation = relation.replaceAt(index, value).toImmutableList()) }
         Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation.toList())
     }
 
@@ -289,7 +289,7 @@ class ViewModel {
         updateTableState {
             val columnHideIndices = CharaList.nameList.mapIndexedNotNull { index, name ->
                 if (columnFilter.check(index, name, ownedChara)) null else index
-            }
+            }.toImmutableList()
             copy(columnHideIndices = columnHideIndices)
         }
     }
@@ -297,30 +297,30 @@ class ViewModel {
     var showColumnCustomFilterDialog by mutableStateOf(false)
 
     fun updateColumnCustomFilter(name: String, value: Boolean) {
-        updateColumnFilter { copy(custom = custom.replace(name, value)) }
+        updateColumnFilter { copy(custom = custom.replace(name, value).toImmutableMap()) }
         Preferences.saveColumnCustomFilter(state.tableState.columnFilter.custom.filterValues { it }.keys)
     }
 
     fun updateColumnCustomFilterAll() {
         val value = !state.tableState.columnFilter.custom.values.any { it }
-        updateColumnFilter { copy(custom = custom.mapValues { value }) }
+        updateColumnFilter { copy(custom = custom.mapValues { value }.toImmutableMap()) }
         Preferences.saveColumnCustomFilter(state.tableState.columnFilter.custom.filterValues { it }.keys)
     }
 
     var showColumnRelationFilterDialog by mutableStateOf(false)
 
     fun addColumnRelationFilter() {
-        updateColumnFilter { copy(relation = relation + -1) }
+        updateColumnFilter { copy(relation = (relation + -1).toImmutableList()) }
         Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
     }
 
     fun deleteColumnRelationFilter(index: Int) {
-        updateColumnFilter { copy(relation = relation.removedAt(index)) }
+        updateColumnFilter { copy(relation = relation.removedAt(index).toImmutableList()) }
         Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
     }
 
     fun setColumnRelationFilter(index: Int, value: Int) {
-        updateColumnFilter { copy(relation = relation.replaceAt(index, value)) }
+        updateColumnFilter { copy(relation = relation.replaceAt(index, value).toImmutableList()) }
         Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
     }
 
@@ -335,37 +335,37 @@ class ViewModel {
 
     fun updateCalcBaseRate(level: Int, value: Number) {
         updateCalcSetting {
-            copy(baseRate = baseRate.replaceAt(level, value.toDouble() / 100))
+            copy(baseRate = baseRate.replaceAt(level, value.toDouble() / 100).toImmutableList())
         }
     }
 
     fun updateCalcInitialProper(type: Type, rank: Rank) {
         updateCalcSetting {
-            copy(initialProperValue = initialProperValue.replaceAt(type.ordinal, rank))
+            copy(initialProperValue = initialProperValue.replaceAt(type.ordinal, rank).toImmutableList())
         }
     }
 
     fun updateCalcGoalProper(type: Type, rank: Rank) {
         updateCalcSetting {
-            copy(goalProperValue = goalProperValue.replaceAt(type.ordinal, rank))
+            copy(goalProperValue = goalProperValue.replaceAt(type.ordinal, rank).toImmutableList())
         }
     }
 
     fun updateCalcProperType(target: Int, type: Type) {
         updateCalcSetting {
-            copy(properType = properType.replaceAt(target, type))
+            copy(properType = properType.replaceAt(target, type).toImmutableList())
         }
     }
 
     fun updateCalcProperLevel(target: Int, level: Int) {
         updateCalcSetting {
-            copy(properLevel = properLevel.replaceAt(target, level))
+            copy(properLevel = properLevel.replaceAt(target, level).toImmutableList())
         }
     }
 
     fun updateCalcBonusCount(target: Int, count: Number) {
         updateCalcSetting {
-            copy(bonusCount = bonusCount.replaceAt(target, count.toInt()))
+            copy(bonusCount = bonusCount.replaceAt(target, count.toInt()).toImmutableList())
         }
     }
 
@@ -393,7 +393,7 @@ class ViewModel {
         val challengeCount = factorState.challengeCount
         var maxRate = 0.0
         var maxIndex = 0
-        val result = List(factorState.challengeCount) { circlingMax ->
+        val result = PersistentList(factorState.challengeCount) { circlingMax ->
             val rate = calc(realSuccessRate, circlingSuccessRate, circlingRealSuccessRate, challengeCount, circlingMax)
             if (rate > maxRate) {
                 maxRate = rate

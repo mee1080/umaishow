@@ -1,6 +1,8 @@
 package io.github.mee1080.umaishow.vm
 
 import io.github.mee1080.umaishow.data.Store
+import io.github.mee1080.umaishow.mapImmutable
+import io.github.mee1080.umaishow.toImmutableList
 import kotlin.math.min
 
 object RateCalculator {
@@ -69,7 +71,7 @@ object RateCalculator {
             }
         }
         val totalRates = Array(3) { Array(8) { 0.0 } }
-        var goalRate: Double = 0.0
+        var goalRate = 0.0
         val goals = setting.goalProperValue.map { it.ordinal }
         results.forEach { (properValues, rate) ->
             totalRates[0][properValues[0]] += rate
@@ -80,8 +82,8 @@ object RateCalculator {
             }
         }
         return CalcResult(
-            rate1, rate2, rate11, rate12, rate21, rate22, initialProperValues.map { Rank.values()[it] },
-            totalRates[0].toList(), totalRates[1].toList(), totalRates[2].toList(), goalRate,
+            rate1, rate2, rate11, rate12, rate21, rate22, initialProperValues.mapImmutable { Rank.entries[it] },
+            totalRates[0].toImmutableList(), totalRates[1].toImmutableList(), totalRates[2].toImmutableList(), goalRate,
         )
     }
 }

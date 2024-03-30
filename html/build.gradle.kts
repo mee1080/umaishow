@@ -19,6 +19,7 @@ kotlin {
             dependencies {
                 implementation(compose.html.core)
                 implementation(compose.runtime)
+                implementation(libs.kotlinx.collections.immutable)
                 implementation(npm("@material/mwc-button", "0.25.3"))
                 implementation(npm("@material/mwc-dialog", "0.25.3"))
                 implementation(npm("@material/mwc-tab", "0.25.3"))
