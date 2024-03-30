@@ -22,10 +22,29 @@ import io.github.mee1080.umaishow.PersistentList
 import io.github.mee1080.umaishow.mapImmutable
 import io.github.mee1080.umaishow.mapIndexedImmutable
 import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
 
 object Store {
-    val charaList = Source.chara.mapImmutable { it.first to it.second.toImmutableSet() }
+    val charaList = Source.chara
+        .split("\n")
+        .mapNotNull { data ->
+            val split = data.split(":")
+            if (split.size == 2) {
+                split[0] to split[1].split(",").map { it.toInt() }.toImmutableSet()
+            } else null
+        }.toImmutableList()
+
+    private val relationMap = Source.relation
+        .split("\n")
+        .mapNotNull { data ->
+            val split = data.split(":")
+            if (split.size == 2) {
+                split[0].toInt() to split[1].toInt()
+            } else null
+        }.associate { it }
+        .toImmutableMap()
 
     val charaNameList = charaList.mapImmutable { it.first }
 
@@ -42,7 +61,7 @@ object Store {
 
     private val parentMap = parentRelation.mapImmutable { sets ->
         sets.mapImmutable { set ->
-            set.sumOf { Source.relation[it] ?: 1 }
+            set.sumOf { relationMap[it] ?: 1 }
         }
     }
 
@@ -50,7 +69,7 @@ object Store {
         sets.mapIndexedImmutable { parent, set ->
             PersistentList(charaList.size) { grand ->
                 if (child == grand || parent == grand) 0 else set.intersect(charaList[grand].second)
-                    .sumOf { Source.relation[it] ?: 1 }
+                    .sumOf { relationMap[it] ?: 1 }
             }
         }
     }
