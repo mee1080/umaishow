@@ -11,3 +11,5 @@ plugins {
 }
 include("html")
 include("core")
+include("composeCommon")
+include("desktop")
