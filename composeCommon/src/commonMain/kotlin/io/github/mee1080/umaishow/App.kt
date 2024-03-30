@@ -18,9 +18,8 @@
  */
 package io.github.mee1080.umaishow
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import io.github.mee1080.umaishow.pages.table.TablePage
 import io.github.mee1080.umaishow.theme.AppTheme
 import io.github.mee1080.umaishow.vm.State
 import io.github.mee1080.umaishow.vm.ViewModel
@@ -28,6 +27,6 @@ import io.github.mee1080.umaishow.vm.ViewModel
 @Composable
 fun App(state: State, viewModel: ViewModel, font: String) {
     AppTheme(fontResource = font) {
-        Column { Text("TODO") }
+        TablePage(state.tableState, viewModel)
     }
 }

@@ -25,8 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.style.TextDecoration
-import io.github.mee1080.common.lib.buildPersistentList
 import io.github.mee1080.common.lib.jumpToUrl
+import io.github.mee1080.umaishow.buildPersistentList
 import kotlinx.collections.immutable.ImmutableList
 
 private val urlRegex = "https?://[\\w/:%#$&?()~.=+\\-]+".toRegex()
