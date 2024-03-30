@@ -2,8 +2,10 @@ rootProject.name = "umaishow"
 
 pluginManagement {
     repositories {
+        google()
         gradlePluginPortal()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        mavenCentral()
     }
 }
 plugins {
@@ -13,3 +15,4 @@ include("html")
 include("core")
 include("composeCommon")
 include("desktop")
+include("wasm")
