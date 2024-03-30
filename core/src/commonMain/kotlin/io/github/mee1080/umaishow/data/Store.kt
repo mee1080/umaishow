@@ -42,7 +42,7 @@ object Store {
 
     private val parentMap = parentRelation.mapImmutable { sets ->
         sets.mapImmutable { set ->
-            set.sumOf { Source.relation[it]!! }
+            set.sumOf { Source.relation[it] ?: 1 }
         }
     }
 
@@ -50,7 +50,7 @@ object Store {
         sets.mapIndexedImmutable { parent, set ->
             PersistentList(charaList.size) { grand ->
                 if (child == grand || parent == grand) 0 else set.intersect(charaList[grand].second)
-                    .sumOf { Source.relation[it]!! }
+                    .sumOf { Source.relation[it] ?: 1 }
             }
         }
     }
