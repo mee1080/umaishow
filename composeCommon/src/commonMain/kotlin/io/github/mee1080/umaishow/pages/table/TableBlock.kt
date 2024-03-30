@@ -41,6 +41,7 @@ fun TableBlock(state: TableState, viewModel: ViewModel) {
             viewModel.showRelationInfo(it)
         }
     )
+    RelationInfoDialog(viewModel)
 }
 
 private val rowHeaderWidth = 160.dp
@@ -159,7 +160,7 @@ private fun TableHeader(
                 modifier = Modifier.weight(1f),
                 state = horizontalScrollState,
             ) {
-                CharaList.nameList.forEachIndexed { index, name ->
+                state.headerCharaNames.forEach { (index, name) ->
                     item {
                         Box(columnHeaderModifier.clickable { onSortKeyChanged(index) }) {
                             Text(

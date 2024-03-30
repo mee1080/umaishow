@@ -19,7 +19,6 @@
 package io.github.mee1080.umaishow.theme
 
 import androidx.compose.foundation.LocalScrollbarStyle
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +39,7 @@ import org.jetbrains.compose.resources.FontResource
 @Composable
 fun AppTheme(
     fontResource: String,
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

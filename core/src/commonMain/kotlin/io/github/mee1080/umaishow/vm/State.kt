@@ -51,13 +51,16 @@ data class TableState(
     val rowFilter: FilterSetting = FilterSetting(
         custom = loadCharaNameMap(Preferences.loadRowCustomFilter()),
         relation = Preferences.loadRowRelationFilter().toImmutableList(),
+        names = Preferences.loadRowNameFilter().toImmutableList(),
     ),
     val rowHideIndices: ImmutableList<Int> = persistentListOf(),
     val columnFilter: FilterSetting = FilterSetting(
         custom = loadCharaNameMap(Preferences.loadColumnCustomFilter(), CharaList.columnList),
         relation = Preferences.loadColumnRelationFilter().toImmutableList(),
+        names = Preferences.loadRowNameFilter().toImmutableList(),
     ),
     val columnHideIndices: ImmutableList<Int> = persistentListOf(),
+    val headerCharaNames: ImmutableList<Pair<Int, String>> = CharaList.indexedCharaList,
 )
 
 private fun loadCharaNameMap(
@@ -100,6 +103,8 @@ data class CharaSelection(
             || (parent21 != -1 && parent21 == parent22)
 
     val childSelected = child >= 0
+
+    val childEntry get() = child to getCharaName(child) { CharaList.childList[0].second }
 
     val parent1Name = "親1 : " + getCharaName(parent1)
     val parent2Name = "親2 : " + getCharaName(parent2)
@@ -144,10 +149,11 @@ data class CharaSelection(
         return listOf(-1 to "未選択") + list.map { it.first to it.second }
     }
 
-    private fun getCharaName(index: Int) = CharaList.nameList.getOrElse(index) { "未選択" }
+    private fun getCharaName(index: Int, defaultValue: () -> String = { "未選択" }) =
+        CharaList.nameList.getOrElse(index) { defaultValue() }
 }
 
-class RelationTableEntry(
+data class RelationTableEntry(
     val index: Int,
     val name: String,
     val parentRelation: Int,
@@ -158,13 +164,14 @@ class RelationTableEntry(
 }
 
 enum class FilterMode {
-    NONE, OWNED, NOT_OWNED, CUSTOM, RELATION,
+    NONE, OWNED, NOT_OWNED, CUSTOM, RELATION, NAME,
 }
 
 data class FilterSetting(
     val mode: FilterMode = FilterMode.NONE,
     val custom: ImmutableMap<String, Boolean> = persistentMapOf(),
-    val relation: ImmutableList<Int> = persistentListOf(),
+    val relation: ImmutableList<Int> = persistentListOf(-1),
+    val names: ImmutableList<String> = persistentListOf(""),
 ) {
     private val checker: (index: Int, name: String, ownedChara: Map<String, Boolean>) -> Boolean = when (mode) {
         FilterMode.NONE -> { _, _, _ -> true }
@@ -176,6 +183,8 @@ data class FilterSetting(
                 relation.all { it < 0 || charaRelation.contains(it) }
             } ?: true
         }
+
+        FilterMode.NAME -> { _, name, _ -> names.any { name.contains(it) } }
     }
 
     fun check(index: Int, name: String, ownedChara: Map<String, Boolean>) = checker(index, name, ownedChara)

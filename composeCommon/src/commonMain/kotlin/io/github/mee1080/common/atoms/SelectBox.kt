@@ -23,10 +23,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun <T> SelectBox(
-    items: List<T>,
+    items: ImmutableList<T>,
     selectedItem: T?,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
@@ -47,7 +48,7 @@ fun <T> SelectBox(
 fun <T> SelectBox(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    items: List<T>,
+    items: ImmutableList<T>,
     selectedItem: T?,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,

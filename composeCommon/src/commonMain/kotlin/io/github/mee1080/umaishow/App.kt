@@ -19,14 +19,16 @@
 package io.github.mee1080.umaishow
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import io.github.mee1080.umaishow.pages.table.TablePage
 import io.github.mee1080.umaishow.theme.AppTheme
-import io.github.mee1080.umaishow.vm.State
 import io.github.mee1080.umaishow.vm.ViewModel
 
 @Composable
-fun App(state: State, viewModel: ViewModel, font: String) {
+fun App(font: String) {
+    val viewModel = remember { ViewModel(doFilterRelationTable = true) }
+    val state = viewModel.state
     AppTheme(fontResource = font) {
-        TablePage(state.tableState, viewModel)
+        TablePage(state, viewModel)
     }
 }

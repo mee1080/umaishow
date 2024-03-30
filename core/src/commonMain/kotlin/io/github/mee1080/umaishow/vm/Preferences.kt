@@ -69,10 +69,24 @@ object Preferences {
 
     fun saveRowRelationFilter(value: Collection<Int>) = save(KEY_ROW_RELATION_FILTER, value.joinToString(","))
 
+    private const val KEY_ROW_NAME_FILTER = "RowNameFilter"
+
+    fun loadRowNameFilter() =
+        load(KEY_ROW_NAME_FILTER)?.split(",") ?: listOf("")
+
+    fun saveRowNameFilter(value: Collection<String>) = save(KEY_ROW_NAME_FILTER, value.joinToString(","))
+
     private const val KEY_COLUMN_RELATION_FILTER = "ColumnRelationFilter"
 
     fun loadColumnRelationFilter() =
         load(KEY_COLUMN_RELATION_FILTER)?.split(",")?.mapNotNull { it.toIntOrNull() } ?: listOf(-1)
 
     fun saveColumnRelationFilter(value: Collection<Int>) = save(KEY_COLUMN_RELATION_FILTER, value.joinToString(","))
+
+    private const val KEY_COLUMN_NAME_FILTER = "ColumnNameFilter"
+
+    fun loadColumnNameFilter() =
+        load(KEY_COLUMN_NAME_FILTER)?.split(",") ?: listOf("")
+
+    fun saveColumnNameFilter(value: Collection<String>) = save(KEY_COLUMN_NAME_FILTER, value.joinToString(","))
 }

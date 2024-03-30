@@ -31,7 +31,7 @@ import kotlin.math.pow
 import kotlin.random.Random
 
 @Stable
-class ViewModel {
+class ViewModel(private val doFilterRelationTable: Boolean = false) {
 
     var state by mutableStateOf(State())
 
@@ -221,14 +221,30 @@ class ViewModel {
 
     private fun sortRelationTable() {
         val table = state.tableState.rawRelationTable
-        val sorted = when (val sortKey = state.tableState.sortKey) {
+        var sorted = when (val sortKey = state.tableState.sortKey) {
             -2 -> table
             -1 -> table.sortedByDescending { it.parentRelation }.toImmutableList()
             else -> table.sortedByDescending {
                 if (sortKey < it.relationList.size) it.relationList[sortKey] else it.relationTotal
             }.toImmutableList()
         }
-        updateTableState { copy(relationTable = sorted) }
+        var charaNames = CharaList.indexedCharaList
+        if (doFilterRelationTable) {
+            val rowHideIndices = state.tableState.rowHideIndices.toSet()
+            val columnHideIndices = state.tableState.columnHideIndices.toSet()
+            sorted = sorted.map {
+                val newList = it.relationList.filterIndexed { index, _ ->
+                    !columnHideIndices.contains(index)
+                }.toImmutableList()
+                it.copy(relationList = newList)
+            }.filter {
+                !rowHideIndices.contains(it.index)
+            }.toImmutableList()
+            charaNames = charaNames.filterIndexed { index, _ ->
+                !columnHideIndices.contains(index)
+            }.toImmutableList()
+        }
+        updateTableState { copy(relationTable = sorted, headerCharaNames = charaNames) }
     }
 
     fun sort(key: Int) {
@@ -248,6 +264,7 @@ class ViewModel {
             }.toImmutableList()
             copy(rowHideIndices = rowHideIndices)
         }
+        if (doFilterRelationTable) sortRelationTable()
     }
 
     var showRowCustomFilterDialog by mutableStateOf(false)
@@ -267,17 +284,34 @@ class ViewModel {
 
     fun addRowRelationFilter() {
         updateRowFilter { copy(relation = (relation + -1).toImmutableList()) }
-        Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation.toList())
+        Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation)
     }
 
     fun deleteRowRelationFilter(index: Int) {
         updateRowFilter { copy(relation = relation.removedAt(index).toImmutableList()) }
-        Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation.toList())
+        Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation)
     }
 
     fun setRowRelationFilter(index: Int, value: Int) {
         updateRowFilter { copy(relation = relation.replaceAt(index, value).toImmutableList()) }
-        Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation.toList())
+        Preferences.saveRowRelationFilter(state.tableState.rowFilter.relation)
+    }
+
+    var showRowNameFilterDialog by mutableStateOf(false)
+
+    fun addRowNameFilter() {
+        updateRowFilter { copy(names = (names + "").toImmutableList()) }
+        Preferences.saveRowNameFilter(state.tableState.rowFilter.names)
+    }
+
+    fun deleteRowNameFilter(index: Int) {
+        updateRowFilter { copy(names = names.removedAt(index).toImmutableList()) }
+        Preferences.saveRowNameFilter(state.tableState.rowFilter.names)
+    }
+
+    fun setRowNameFilter(index: Int, value: String) {
+        updateRowFilter { copy(names = names.replaceAt(index, value).toImmutableList()) }
+        Preferences.saveRowNameFilter(state.tableState.rowFilter.names)
     }
 
     fun updateColumnFilter(action: FilterSetting.() -> FilterSetting) {
@@ -292,6 +326,7 @@ class ViewModel {
             }.toImmutableList()
             copy(columnHideIndices = columnHideIndices)
         }
+        if (doFilterRelationTable) sortRelationTable()
     }
 
     var showColumnCustomFilterDialog by mutableStateOf(false)
@@ -311,17 +346,34 @@ class ViewModel {
 
     fun addColumnRelationFilter() {
         updateColumnFilter { copy(relation = (relation + -1).toImmutableList()) }
-        Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
+        Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation)
     }
 
     fun deleteColumnRelationFilter(index: Int) {
         updateColumnFilter { copy(relation = relation.removedAt(index).toImmutableList()) }
-        Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
+        Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation)
     }
 
     fun setColumnRelationFilter(index: Int, value: Int) {
         updateColumnFilter { copy(relation = relation.replaceAt(index, value).toImmutableList()) }
-        Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation.toList())
+        Preferences.saveColumnRelationFilter(state.tableState.columnFilter.relation)
+    }
+
+    var showColumnNameFilterDialog by mutableStateOf(false)
+
+    fun addColumnNameFilter() {
+        updateColumnFilter { copy(names = (names + "").toImmutableList()) }
+        Preferences.saveColumnNameFilter(state.tableState.columnFilter.names)
+    }
+
+    fun deleteColumnNameFilter(index: Int) {
+        updateColumnFilter { copy(names = names.removedAt(index).toImmutableList()) }
+        Preferences.saveColumnNameFilter(state.tableState.columnFilter.names)
+    }
+
+    fun setColumnNameFilter(index: Int, value: String) {
+        updateColumnFilter { copy(names = names.replaceAt(index, value).toImmutableList()) }
+        Preferences.saveColumnNameFilter(state.tableState.columnFilter.names)
     }
 
     fun updateCalcState(action: CalcState.() -> CalcState) {
