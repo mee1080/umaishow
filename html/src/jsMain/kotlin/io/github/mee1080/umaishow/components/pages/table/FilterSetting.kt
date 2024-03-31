@@ -1,10 +1,9 @@
 package io.github.mee1080.umaishow.components.pages.table
 
 import androidx.compose.runtime.Composable
-import io.github.mee1080.umaishow.components.pages.chara.CharaSelect
-import io.github.mee1080.umaishow.components.common.LabeledCheckbox
 import io.github.mee1080.umaishow.components.common.LabeledRadio
 import io.github.mee1080.umaishow.components.mwc.*
+import io.github.mee1080.umaishow.components.pages.chara.CharaSelect
 import io.github.mee1080.umaishow.vm.CharaList
 import io.github.mee1080.umaishow.vm.FilterMode
 import io.github.mee1080.umaishow.vm.TableState
@@ -24,23 +23,23 @@ fun FilterSetting(state: TableState, model: ViewModel) {
         LabeledRadio("rowFilterMode", "0", "全て", state.rowFilter.mode == FilterMode.NONE) {
             model.updateRowFilter { copy(mode = FilterMode.NONE) }
         }
-        LabeledRadio("rowFilterMode", "1", "所持のみ", state.rowFilter.mode == FilterMode.OWNED) {
-            model.updateRowFilter { copy(mode = FilterMode.OWNED) }
-        }
-        LabeledRadio("rowFilterMode", "2", "非所持のみ", state.rowFilter.mode == FilterMode.NOT_OWNED) {
-            model.updateRowFilter { copy(mode = FilterMode.NOT_OWNED) }
-        }
-        LabeledRadio("rowFilterMode", "3", "カスタム", state.rowFilter.mode == FilterMode.CUSTOM) {
-            model.updateRowFilter { copy(mode = FilterMode.CUSTOM) }
-        }
-        Button({
-            if (state.rowFilter.mode != FilterMode.CUSTOM) disabled()
-            onClick {
-                model.showRowCustomFilterDialog = true
-            }
-        }) {
-            Text("設定")
-        }
+//        LabeledRadio("rowFilterMode", "1", "所持のみ", state.rowFilter.mode == FilterMode.OWNED) {
+//            model.updateRowFilter { copy(mode = FilterMode.OWNED) }
+//        }
+//        LabeledRadio("rowFilterMode", "2", "非所持のみ", state.rowFilter.mode == FilterMode.NOT_OWNED) {
+//            model.updateRowFilter { copy(mode = FilterMode.NOT_OWNED) }
+//        }
+//        LabeledRadio("rowFilterMode", "3", "カスタム", state.rowFilter.mode == FilterMode.CUSTOM) {
+//            model.updateRowFilter { copy(mode = FilterMode.CUSTOM) }
+//        }
+//        Button({
+//            if (state.rowFilter.mode != FilterMode.CUSTOM) disabled()
+//            onClick {
+//                model.showRowCustomFilterDialog = true
+//            }
+//        }) {
+//            Text("設定")
+//        }
         LabeledRadio("rowFilterMode", "4", "要素", state.rowFilter.mode == FilterMode.RELATION) {
             model.updateRowFilter { copy(mode = FilterMode.RELATION) }
         }
@@ -52,23 +51,23 @@ fun FilterSetting(state: TableState, model: ViewModel) {
         }) {
             Text("設定")
         }
-        MwcDialog(
-            onPrimaryButton = { model.showRowCustomFilterDialog = false },
-            onSecondaryButton = { model.updateRowCustomFilterAll() },
-            secondaryButtonLabel = { Text("全てON/OFF") },
-            attrs = {
-                if (model.showRowCustomFilterDialog) open()
-                onClose { model.showRowCustomFilterDialog = false }
-            }
-        ) {
-            CharaList.nameList.forEach { name ->
-                Div {
-                    LabeledCheckbox(name, name, state.rowFilter.custom[name] ?: false) {
-                        model.updateRowCustomFilter(name, it)
-                    }
-                }
-            }
-        }
+//        MwcDialog(
+//            onPrimaryButton = { model.showRowCustomFilterDialog = false },
+//            onSecondaryButton = { model.updateRowCustomFilterAll() },
+//            secondaryButtonLabel = { Text("全てON/OFF") },
+//            attrs = {
+//                if (model.showRowCustomFilterDialog) open()
+//                onClose { model.showRowCustomFilterDialog = false }
+//            }
+//        ) {
+//            CharaList.nameList.forEach { name ->
+//                Div {
+//                    LabeledCheckbox(name, name, state.rowFilter.custom[name] ?: false) {
+//                        model.updateRowCustomFilter(name, it)
+//                    }
+//                }
+//            }
+//        }
         MwcDialog(
             onPrimaryButton = { model.showRowRelationFilterDialog = false },
             attrs = {
@@ -110,23 +109,23 @@ fun FilterSetting(state: TableState, model: ViewModel) {
         LabeledRadio("columnFilterMode", "0", "全て", state.columnFilter.mode == FilterMode.NONE) {
             model.updateColumnFilter { copy(mode = FilterMode.NONE) }
         }
-        LabeledRadio("columnFilterMode", "1", "所持のみ", state.columnFilter.mode == FilterMode.OWNED) {
-            model.updateColumnFilter { copy(mode = FilterMode.OWNED) }
-        }
-        LabeledRadio("columnFilterMode", "2", "非所持のみ", state.columnFilter.mode == FilterMode.NOT_OWNED) {
-            model.updateColumnFilter { copy(mode = FilterMode.NOT_OWNED) }
-        }
-        LabeledRadio("columnFilterMode", "3", "カスタム", state.columnFilter.mode == FilterMode.CUSTOM) {
-            model.updateColumnFilter { copy(mode = FilterMode.CUSTOM) }
-        }
-        Button({
-            if (state.columnFilter.mode != FilterMode.CUSTOM) disabled()
-            onClick {
-                model.showColumnCustomFilterDialog = true
-            }
-        }) {
-            Text("設定")
-        }
+//        LabeledRadio("columnFilterMode", "1", "所持のみ", state.columnFilter.mode == FilterMode.OWNED) {
+//            model.updateColumnFilter { copy(mode = FilterMode.OWNED) }
+//        }
+//        LabeledRadio("columnFilterMode", "2", "非所持のみ", state.columnFilter.mode == FilterMode.NOT_OWNED) {
+//            model.updateColumnFilter { copy(mode = FilterMode.NOT_OWNED) }
+//        }
+//        LabeledRadio("columnFilterMode", "3", "カスタム", state.columnFilter.mode == FilterMode.CUSTOM) {
+//            model.updateColumnFilter { copy(mode = FilterMode.CUSTOM) }
+//        }
+//        Button({
+//            if (state.columnFilter.mode != FilterMode.CUSTOM) disabled()
+//            onClick {
+//                model.showColumnCustomFilterDialog = true
+//            }
+//        }) {
+//            Text("設定")
+//        }
         LabeledRadio("columnFilterMode", "4", "要素", state.columnFilter.mode == FilterMode.RELATION) {
             model.updateColumnFilter { copy(mode = FilterMode.RELATION) }
         }
@@ -138,23 +137,23 @@ fun FilterSetting(state: TableState, model: ViewModel) {
         }) {
             Text("設定")
         }
-        MwcDialog(
-            onPrimaryButton = { model.showColumnCustomFilterDialog = false },
-            onSecondaryButton = { model.updateColumnCustomFilterAll() },
-            secondaryButtonLabel = { Text("全てON/OFF") },
-            attrs = {
-                if (model.showColumnCustomFilterDialog) open()
-                onClose { model.showColumnCustomFilterDialog = false }
-            }
-        ) {
-            CharaList.columnList.forEach { name ->
-                Div {
-                    LabeledCheckbox(name, name, state.columnFilter.custom[name] ?: false) {
-                        model.updateColumnCustomFilter(name, it)
-                    }
-                }
-            }
-        }
+//        MwcDialog(
+//            onPrimaryButton = { model.showColumnCustomFilterDialog = false },
+//            onSecondaryButton = { model.updateColumnCustomFilterAll() },
+//            secondaryButtonLabel = { Text("全てON/OFF") },
+//            attrs = {
+//                if (model.showColumnCustomFilterDialog) open()
+//                onClose { model.showColumnCustomFilterDialog = false }
+//            }
+//        ) {
+//            CharaList.columnList.forEach { name ->
+//                Div {
+//                    LabeledCheckbox(name, name, state.columnFilter.custom[name] ?: false) {
+//                        model.updateColumnCustomFilter(name, it)
+//                    }
+//                }
+//            }
+//        }
         MwcDialog(
             onPrimaryButton = { model.showColumnRelationFilterDialog = false },
             attrs = {

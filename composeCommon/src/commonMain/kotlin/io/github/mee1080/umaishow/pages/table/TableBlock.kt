@@ -31,7 +31,7 @@ import kotlinx.coroutines.*
 import kotlin.math.max
 
 @Composable
-fun TableBlock(state: TableState, viewModel: ViewModel) {
+fun TableBlock(state: TableState, viewModel: ViewModel, modifier: Modifier = Modifier) {
     LazyColumnLazyRowTable(
         state = state,
         onSortKeyChanged = {
@@ -39,7 +39,8 @@ fun TableBlock(state: TableState, viewModel: ViewModel) {
         },
         showRelationInfo = {
             viewModel.showRelationInfo(it)
-        }
+        },
+        modifier = modifier,
     )
     RelationInfoDialog(viewModel)
 }
@@ -116,6 +117,7 @@ private fun LazyColumnLazyRowTable(
     state: TableState,
     onSortKeyChanged: (Int) -> Unit,
     showRelationInfo: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val horizontalScrollState = rememberLazyListState()
     val tableHeaderModifier = Modifier.padding(end = LocalScrollbarStyle.current.thickness)
@@ -123,7 +125,7 @@ private fun LazyColumnLazyRowTable(
         start = rowHeaderWidth,
         end = LocalScrollbarStyle.current.thickness,
     )
-    Column(Modifier.fillMaxSize()) {
+    Column(modifier) {
         TableHeader(state, horizontalScrollState, tableHeaderModifier, onSortKeyChanged)
         TableBody(state, horizontalScrollState, Modifier.weight(1f), showRelationInfo)
         Row(tableFooterModifier) {

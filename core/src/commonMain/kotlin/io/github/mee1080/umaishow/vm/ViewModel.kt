@@ -109,80 +109,80 @@ class ViewModel(private val doFilterRelationTable: Boolean = false) {
         Preferences.saveOwnedChara(state.tableState.ownedChara.filterValues { it }.keys)
     }
 
-    fun autoSetParents() {
-        val state = state
-        val selection = state.charaSelection
-        if (!selection.childSelected) return
-        val (child, parent1, parent2) = listOf(
-            selection.child, selection.parent1, selection.parent2
-        )
-        val (parent11, parent12, parent21, parent22) = listOf(
-            selection.parent11, selection.parent12, selection.parent21, selection.parent22
-        )
-        val targetList = CharaList.indexedCharaList
-            .filter { it.first != child && (state.autoSetParentsTarget == 0 || state.tableState.ownedChara[it.second] ?: false) }
-            .map { it.first }
-            .sortedByDescending { Store.parent(child, it) }
-        val p1List = (if (parent1 == -1) targetList else listOf(parent1))
-            .map { it to Store.parent(child, it) }
-        val p2List = (if (parent2 == -1) targetList else listOf(parent2))
-            .map { it to Store.parent(child, it) }
-        val p11List = if (parent11 == -1) targetList else listOf(parent11)
-        val p12List = if (parent12 == -1) targetList else listOf(parent12)
-        val p21List = if (parent21 == -1) targetList else listOf(parent21)
-        val p22List = if (parent22 == -1) targetList else listOf(parent22)
-        var maxRelation = 0
-        var maxCombination = listOf(parent1, parent2, parent11, parent12, parent21, parent22)
-        val charaCount = CharaList.charaList.size
-        val checkedParent1 = BooleanArray(charaCount) { false }
-        p1List.forEach { p1Pair ->
-            val p1 = p1Pair.first
-            val p1Relation = p1Pair.second
-            checkedParent1[p1] = true
-            p2List.filterNot { checkedParent1[it.first] }.forEach { p2Pair ->
-                val p2 = p2Pair.first
-                val p2Relation = p2Pair.second
-                val parentsRelation = Store.parent(p1, p2)
-                if (p1Relation * 3 + p2Relation * 3 + parentsRelation > maxRelation) {
-                    val checkedParent11 = BooleanArray(charaCount) { it == p1 }
-                    p11List.filter { it != p1 }.forEach { p11 ->
-                        checkedParent11[p11] = true
-                        val p11Relation = Store.grandParent(child, p1, p11)
-                        p12List.filterNot { checkedParent11[it] }.forEach { p12 ->
-                            val p12Relation = Store.grandParent(child, p1, p12)
-                            if (p1Relation + p11Relation + p12Relation + p2Relation * 3 + parentsRelation > maxRelation) {
-                                val checkedParent21 = BooleanArray(charaCount) { it == p2 }
-                                p21List.filter { it != p2 }.forEach { p21 ->
-                                    checkedParent21[p21] = true
-                                    val p21Relation = Store.grandParent(child, p2, p21)
-                                    p22List.filterNot { checkedParent21[it] }.forEach { p22 ->
-                                        val p22Relation = Store.grandParent(child, p2, p22)
-                                        val relation =
-                                            p1Relation + p11Relation + p12Relation + p2Relation + p21Relation + p22Relation + parentsRelation
-                                        if (relation > maxRelation) {
-                                            maxRelation = relation
-                                            maxCombination = listOf(p1, p2, p11, p12, p21, p22)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        updateSelection {
-            copy(
-                parent1 = maxCombination[0],
-                parent2 = maxCombination[1],
-                parent11 = maxCombination[2],
-                parent12 = maxCombination[3],
-                parent21 = maxCombination[4],
-                parent22 = maxCombination[5],
-            )
-        }
-        calcRate()
-    }
+//    fun autoSetParents() {
+//        val state = state
+//        val selection = state.charaSelection
+//        if (!selection.childSelected) return
+//        val (child, parent1, parent2) = listOf(
+//            selection.child, selection.parent1, selection.parent2
+//        )
+//        val (parent11, parent12, parent21, parent22) = listOf(
+//            selection.parent11, selection.parent12, selection.parent21, selection.parent22
+//        )
+//        val targetList = CharaList.indexedCharaList
+//            .filter { it.first != child && (state.autoSetParentsTarget == 0 || state.tableState.ownedChara[it.second] ?: false) }
+//            .map { it.first }
+//            .sortedByDescending { Store.parent(child, it) }
+//        val p1List = (if (parent1 == -1) targetList else listOf(parent1))
+//            .map { it to Store.parent(child, it) }
+//        val p2List = (if (parent2 == -1) targetList else listOf(parent2))
+//            .map { it to Store.parent(child, it) }
+//        val p11List = if (parent11 == -1) targetList else listOf(parent11)
+//        val p12List = if (parent12 == -1) targetList else listOf(parent12)
+//        val p21List = if (parent21 == -1) targetList else listOf(parent21)
+//        val p22List = if (parent22 == -1) targetList else listOf(parent22)
+//        var maxRelation = 0
+//        var maxCombination = listOf(parent1, parent2, parent11, parent12, parent21, parent22)
+//        val charaCount = CharaList.charaList.size
+//        val checkedParent1 = BooleanArray(charaCount) { false }
+//        p1List.forEach { p1Pair ->
+//            val p1 = p1Pair.first
+//            val p1Relation = p1Pair.second
+//            checkedParent1[p1] = true
+//            p2List.filterNot { checkedParent1[it.first] }.forEach { p2Pair ->
+//                val p2 = p2Pair.first
+//                val p2Relation = p2Pair.second
+//                val parentsRelation = Store.parent(p1, p2)
+//                if (p1Relation * 3 + p2Relation * 3 + parentsRelation > maxRelation) {
+//                    val checkedParent11 = BooleanArray(charaCount) { it == p1 }
+//                    p11List.filter { it != p1 }.forEach { p11 ->
+//                        checkedParent11[p11] = true
+//                        val p11Relation = Store.grandParent(child, p1, p11)
+//                        p12List.filterNot { checkedParent11[it] }.forEach { p12 ->
+//                            val p12Relation = Store.grandParent(child, p1, p12)
+//                            if (p1Relation + p11Relation + p12Relation + p2Relation * 3 + parentsRelation > maxRelation) {
+//                                val checkedParent21 = BooleanArray(charaCount) { it == p2 }
+//                                p21List.filter { it != p2 }.forEach { p21 ->
+//                                    checkedParent21[p21] = true
+//                                    val p21Relation = Store.grandParent(child, p2, p21)
+//                                    p22List.filterNot { checkedParent21[it] }.forEach { p22 ->
+//                                        val p22Relation = Store.grandParent(child, p2, p22)
+//                                        val relation =
+//                                            p1Relation + p11Relation + p12Relation + p2Relation + p21Relation + p22Relation + parentsRelation
+//                                        if (relation > maxRelation) {
+//                                            maxRelation = relation
+//                                            maxCombination = listOf(p1, p2, p11, p12, p21, p22)
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        updateSelection {
+//            copy(
+//                parent1 = maxCombination[0],
+//                parent2 = maxCombination[1],
+//                parent11 = maxCombination[2],
+//                parent12 = maxCombination[3],
+//                parent21 = maxCombination[4],
+//                parent22 = maxCombination[5],
+//            )
+//        }
+//        calcRate()
+//    }
 
     fun clearParents() {
         updateSelection {
@@ -197,16 +197,16 @@ class ViewModel(private val doFilterRelationTable: Boolean = false) {
 
     private fun updateRelationTable() {
         val selection = state.charaSelection
-        val child = selection.child
-        val table = if (selection.childSelected) CharaList.charaList.mapIndexedImmutable { index, chara ->
-            RelationTableEntry(
-                index,
-                chara.first,
-                Store.parent(child, index),
-                Store.grandParentList(child, index),
-                RelationInfo.getShortString(chara.second),
-            )
-        } else CharaList.charaList.mapIndexedImmutable { index, chara ->
+//        val child = selection.child
+//        val table = if (selection.childSelected) CharaList.charaList.mapIndexedImmutable { index, chara ->
+//            RelationTableEntry(
+//                index,
+//                chara.first,
+//                Store.parent(child, index),
+//                Store.grandParentList(child, index),
+//                RelationInfo.getShortString(chara.second),
+//            )
+        val table = CharaList.charaList.mapIndexedImmutable { index, chara ->
             RelationTableEntry(
                 index,
                 chara.first,

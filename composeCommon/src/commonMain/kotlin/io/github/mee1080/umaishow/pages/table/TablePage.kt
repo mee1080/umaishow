@@ -3,6 +3,7 @@ package io.github.mee1080.umaishow.pages.table
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -15,6 +16,6 @@ fun TablePage(state: State, viewModel: ViewModel) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         SettingBlock(state, viewModel)
         HorizontalDivider()
-        TableBlock(state.tableState, viewModel)
+        TableBlock(state.tableState, viewModel, Modifier.fillMaxWidth().weight(1f))
     }
 }

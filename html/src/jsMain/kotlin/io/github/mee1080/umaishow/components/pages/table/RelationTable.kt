@@ -38,11 +38,11 @@ fun RelationTable(state: TableState, model: ViewModel) {
             )
         }) {
             Tr {
-                Th({ classes(AppStyleSheet.column[CharaList.ownedIndex]) }) {
-                    Span({
-                        classes(AppStyleSheet.verticalHeader)
-                    }) { Text("所持") }
-                }
+//                Th({ classes(AppStyleSheet.column[CharaList.ownedIndex]) }) {
+//                    Span({
+//                        classes(AppStyleSheet.verticalHeader)
+//                    }) { Text("所持") }
+//                }
                 Th({
                     classes(AppStyleSheet.clickable)
                     onClickOrTouch { model.sort(-2) }
@@ -78,11 +78,11 @@ fun RelationTable(state: TableState, model: ViewModel) {
             }
             state.relationTable.forEach { entry ->
                 Tr({ classes(AppStyleSheet.row[entry.index]) }) {
-                    Td({ classes(AppStyleSheet.column[CharaList.ownedIndex]) }) {
-                        CheckboxInput(state.ownedChara[entry.name] ?: false) {
-                            onChange { model.updateOwnedChara(entry.name, it.value) }
-                        }
-                    }
+//                    Td({ classes(AppStyleSheet.column[CharaList.ownedIndex]) }) {
+//                        CheckboxInput(state.ownedChara[entry.name] ?: false) {
+//                            onChange { model.updateOwnedChara(entry.name, it.value) }
+//                        }
+//                    }
                     Th({ classes(AppStyleSheet.horizontalHeader) }) { Text(entry.name) }
                     if (state.displayChild) {
                         RelationColumn(entry.parentRelation, "child", true)

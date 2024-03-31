@@ -20,7 +20,6 @@ package io.github.mee1080.umaishow.data
 
 import io.github.mee1080.umaishow.PersistentList
 import io.github.mee1080.umaishow.mapImmutable
-import io.github.mee1080.umaishow.mapIndexedImmutable
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
@@ -28,7 +27,6 @@ import kotlinx.collections.immutable.toImmutableSet
 
 object Store {
     val charaList = Source.chara
-        .split("\n")
         .mapNotNull { data ->
             val split = data.split(":")
             if (split.size == 2) {
@@ -65,14 +63,15 @@ object Store {
         }
     }
 
-    private val grandParentMap = parentRelation.mapIndexedImmutable { child, sets ->
-        sets.mapIndexedImmutable { parent, set ->
-            PersistentList(charaList.size) { grand ->
-                if (child == grand || parent == grand) 0 else set.intersect(charaList[grand].second)
-                    .sumOf { relationMap[it] ?: 1 }
-            }
-        }
-    }
+//    private val grandParentMap = parentRelation.mapIndexedImmutable { child, sets ->
+//        println("grandParentMap $child")
+//        sets.mapIndexedImmutable { parent, set ->
+//            PersistentList(charaList.size) { grand ->
+//                if (child == grand || parent == grand) 0 else set.intersect(charaList[grand].second)
+//                    .sumOf { relationMap[it] ?: 1 }
+//            }
+//        }
+//    }
 
     fun parentList(index: Int) = parentMap[index]
 
@@ -81,10 +80,10 @@ object Store {
             parentMap[index1][index2]
         } else 0
 
-    fun grandParentList(index1: Int, index2: Int) = grandParentMap[index1][index2]
-
-    fun grandParent(index1: Int, index2: Int, index3: Int) =
-        if (index1 in charaRange && index2 in charaRange && index3 in charaRange) {
-            grandParentMap[index1][index2][index3]
-        } else 0
+//    fun grandParentList(index1: Int, index2: Int) = grandParentMap[index1][index2]
+//
+//    fun grandParent(index1: Int, index2: Int, index3: Int) =
+//        if (index1 in charaRange && index2 in charaRange && index3 in charaRange) {
+//            grandParentMap[index1][index2][index3]
+//        } else 0
 }

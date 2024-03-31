@@ -94,7 +94,7 @@ data class CharaSelection(
     val parent22: Int = -1,
     val orderByRelation: Boolean = Preferences.loadParentSortOrder(),
 ) {
-    val totalRelation = calcTotalRelation()
+//    val totalRelation = calcTotalRelation()
 
     val combinationError = child == parent1 || child == parent2
             || (parent1 != -1 && (parent1 == parent2 || parent1 == parent11 || parent1 == parent12))
@@ -113,26 +113,26 @@ data class CharaSelection(
     val parent21Name = "祖2-1 : " + getCharaName(parent21)
     val parent22Name = "祖2-2 : " + getCharaName(parent22)
 
-    val parent1List = generateParentList { Store.parent(child, it) to calcTotalRelation(parent1 = it) }
-    val parent2List = generateParentList { Store.parent(child, it) to calcTotalRelation(parent2 = it) }
-    val parent11List = generateParentList { Store.grandParent(child, parent1, it) to calcTotalRelation(parent11 = it) }
-    val parent12List = generateParentList { Store.grandParent(child, parent1, it) to calcTotalRelation(parent12 = it) }
-    val parent21List = generateParentList { Store.grandParent(child, parent2, it) to calcTotalRelation(parent21 = it) }
-    val parent22List = generateParentList { Store.grandParent(child, parent2, it) to calcTotalRelation(parent22 = it) }
+//    val parent1List = generateParentList { Store.parent(child, it) to calcTotalRelation(parent1 = it) }
+//    val parent2List = generateParentList { Store.parent(child, it) to calcTotalRelation(parent2 = it) }
+//    val parent11List = generateParentList { Store.grandParent(child, parent1, it) to calcTotalRelation(parent11 = it) }
+//    val parent12List = generateParentList { Store.grandParent(child, parent1, it) to calcTotalRelation(parent12 = it) }
+//    val parent21List = generateParentList { Store.grandParent(child, parent2, it) to calcTotalRelation(parent21 = it) }
+//    val parent22List = generateParentList { Store.grandParent(child, parent2, it) to calcTotalRelation(parent22 = it) }
 
-    private fun calcTotalRelation(
-        child: Int = this.child,
-        parent1: Int = this.parent1,
-        parent2: Int = this.parent2,
-        parent11: Int = this.parent11,
-        parent12: Int = this.parent12,
-        parent21: Int = this.parent21,
-        parent22: Int = this.parent22,
-    ): Int {
-        return Store.parent(child, parent1) + Store.parent(child, parent2) + Store.parent(parent1, parent2) +
-                Store.grandParent(child, parent1, parent11) + Store.grandParent(child, parent1, parent12) +
-                Store.grandParent(child, parent2, parent21) + Store.grandParent(child, parent2, parent22)
-    }
+//    private fun calcTotalRelation(
+//        child: Int = this.child,
+//        parent1: Int = this.parent1,
+//        parent2: Int = this.parent2,
+//        parent11: Int = this.parent11,
+//        parent12: Int = this.parent12,
+//        parent21: Int = this.parent21,
+//        parent22: Int = this.parent22,
+//    ): Int {
+//        return Store.parent(child, parent1) + Store.parent(child, parent2) + Store.parent(parent1, parent2) +
+//                Store.grandParent(child, parent1, parent11) + Store.grandParent(child, parent1, parent12) +
+//                Store.grandParent(child, parent2, parent21) + Store.grandParent(child, parent2, parent22)
+//    }
 
     private fun generateParentList(
         calcRelation: (Int) -> Pair<Int, Int>
