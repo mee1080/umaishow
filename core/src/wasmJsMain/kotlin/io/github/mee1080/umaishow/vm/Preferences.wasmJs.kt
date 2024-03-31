@@ -20,6 +20,6 @@ package io.github.mee1080.umaishow.vm
 
 import kotlinx.browser.localStorage
 
-internal actual fun save(key: String, value: String) = localStorage.setItem(key, value)
+internal actual fun save(key: String, value: String) = localStorage.setItem("MOB-$key", value)
 
-internal actual fun load(key: String) = localStorage.getItem(key)
+internal actual fun load(key: String) = localStorage.getItem("MOB-$key")
