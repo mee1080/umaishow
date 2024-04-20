@@ -1,9 +1,9 @@
 [versions]
 
-compose = "1.6.1"
+compose = "1.6.2"
 compose-lazyLayouts = "0.2.4"
 compose-stylesheet = "0.0.3"
-exposed = "0.48.0"
+exposed = "0.49.0"
 jvmTarget = "17"
 koalaplot = "0.5.4"
 kotlin = "1.9.23"
@@ -11,8 +11,8 @@ kotlinx-collections-immutable = "0.3.7"
 kotlinx-coroutines = "1.8.0"
 kotlinx-serializationJson = "1.6.3"
 multiplatform-settings = "1.1.1"
-slf4j = "2.0.12"
-sqlite-jdbc = "3.45.2.0"
+slf4j = "2.0.13"
+sqlite-jdbc = "3.45.3.0"
 
 [libraries]
 
@@ -30,6 +30,9 @@ multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", vers
 multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatform-settings" }
 slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
 sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
+test-common = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlin" }
+test-annotations = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlin" }
+test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 
 [plugins]
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }

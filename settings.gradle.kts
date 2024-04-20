@@ -11,6 +11,7 @@ pluginManagement {
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
 }
+include("utility")
 include("html")
 include("core")
 include("composeCommon")
