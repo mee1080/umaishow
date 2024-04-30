@@ -1,4 +1,4 @@
-package com.example.composebp.utility
+package io.github.mee1080.utility
 
 import kotlin.math.*
 

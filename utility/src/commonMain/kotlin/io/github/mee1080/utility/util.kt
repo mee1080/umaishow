@@ -1,16 +1,16 @@
 @file:Suppress("unused")
 
-package com.example.composebp.utility
+package io.github.mee1080.utility
 
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
-inline fun <T> T.applyIf(
+inline fun <T : R, R> T.applyIf(
     condition: Boolean,
-    block: T.() -> T,
-): T {
+    block: T.() -> R,
+): R {
     contract {
         callsInPlace(block, InvocationKind.AT_MOST_ONCE)
     }
@@ -18,10 +18,10 @@ inline fun <T> T.applyIf(
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun <T> T.applyIf(
+inline fun <T : R, R> T.applyIf(
     condition: (T) -> Boolean,
-    block: T.() -> T,
-): T {
+    block: T.() -> R,
+): R {
     contract {
         callsInPlace(condition, InvocationKind.EXACTLY_ONCE)
         callsInPlace(block, InvocationKind.AT_MOST_ONCE)
@@ -30,14 +30,14 @@ inline fun <T> T.applyIf(
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun <T, U : Any> T.applyIfNotNull(
-    obj: U?,
-    block: T.(U) -> T,
-): T {
+inline fun <T : R, R, D : Any> T.applyIfNotNull(
+    obj: D?,
+    block: T.(D) -> R,
+): R {
     contract {
         callsInPlace(block, InvocationKind.AT_MOST_ONCE)
     }
-    return applyIf(obj != null) { block(obj!!) }
+    return obj?.let { block(it) } ?: this
 }
 
 fun Int.plusMinus(value: Int) = (this - value)..(this + value)
