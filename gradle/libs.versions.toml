@@ -11,7 +11,7 @@ kotlinx-collections-immutable = "0.3.7"
 kotlinx-coroutines = "1.8.0"
 kotlinx-serializationJson = "1.6.3"
 multiplatform-settings = "1.1.1"
-slf4j = "2.0.13"
+slf4j = "2.0.17"
 sqlite-jdbc = "3.45.3.0"
 
 [libraries]
