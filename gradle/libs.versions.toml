@@ -1,7 +1,7 @@
 [versions]
 
 compose = "1.10.3"
-compose-lazyLayouts = "0.2.4"
+compose-lazyLayouts = "0.3.0"
 compose-stylesheet = "0.0.3"
 exposed = "0.61.0"
 jvmTarget = "17"
