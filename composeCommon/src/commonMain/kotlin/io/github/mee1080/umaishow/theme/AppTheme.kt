@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.platform.LoadedFont
 import androidx.compose.ui.unit.dp
+import io.github.mee1080.common.lib.defaultFontResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.FontResource
@@ -38,7 +39,7 @@ import org.jetbrains.compose.resources.FontResource
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun AppTheme(
-    fontResource: String,
+    fontResource: FontResource = defaultFontResource,
     darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
@@ -47,7 +48,7 @@ fun AppTheme(
         else -> LightColorScheme
     }
     val fontPath = "font/$fontResource"
-    val font = Font(FontResource(fontPath))
+    val font = Font(fontResource)
     if (font is LoadedFont && font.identity == fontPath) {
         val fontFamily = FontFamily(font)
         val typography = Typography(

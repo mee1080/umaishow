@@ -25,10 +25,10 @@ import io.github.mee1080.umaishow.theme.AppTheme
 import io.github.mee1080.umaishow.vm.ViewModel
 
 @Composable
-fun App(font: String) {
+fun App() {
     val viewModel = remember { ViewModel(doFilterRelationTable = true) }
     val state = viewModel.state
-    AppTheme(fontResource = font) {
+    AppTheme {
         TablePage(state, viewModel)
     }
 }

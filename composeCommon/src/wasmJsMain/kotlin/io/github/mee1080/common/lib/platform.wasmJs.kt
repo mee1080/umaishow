@@ -19,7 +19,11 @@
 package io.github.mee1080.common.lib
 
 import kotlinx.browser.window
+import umaishow.composecommon.generated.resources.LINESeedJP_OTF_Rg
+import umaishow.composecommon.generated.resources.Res
 
 actual fun jumpToUrl(url: String) {
     window.open(url, "_blank", "noopener,noreferrer")
 }
+
+actual val defaultFontResource = Res.font.LINESeedJP_OTF_Rg

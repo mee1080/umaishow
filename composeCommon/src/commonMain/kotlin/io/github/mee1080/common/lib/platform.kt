@@ -18,4 +18,8 @@
  */
 package io.github.mee1080.common.lib
 
+import org.jetbrains.compose.resources.FontResource
+
 expect fun jumpToUrl(url: String)
+
+expect val defaultFontResource: FontResource

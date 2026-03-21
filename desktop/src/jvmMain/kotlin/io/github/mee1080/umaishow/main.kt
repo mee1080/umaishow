@@ -11,6 +11,6 @@ fun main() = application {
         title = "Compose for Desktop",
         state = rememberWindowState(width = 900.dp, height = 900.dp)
     ) {
-        App("LINESeedJP_A_OTF_Rg.otf")
+        App()
     }
 }

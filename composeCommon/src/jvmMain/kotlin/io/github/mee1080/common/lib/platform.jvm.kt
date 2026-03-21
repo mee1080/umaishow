@@ -18,6 +18,7 @@
  */
 package io.github.mee1080.common.lib
 
+import umaishow.composecommon.generated.resources.Res
 import java.awt.Desktop
 import java.net.URI
 
@@ -29,3 +30,5 @@ actual fun jumpToUrl(url: String) {
         }
     }
 }
+
+actual val defaultFontResource = Res.font.LINESeedJP_A_TTF_Rg

@@ -1,15 +1,13 @@
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-
 plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
 
-    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "wasm"
+        outputModuleName = "wasm"
         browser {
             commonWebpackConfig {
                 outputFileName = "wasm.js"
@@ -34,8 +32,4 @@ kotlin {
             }
         }
     }
-}
-
-compose.experimental {
-    web.application {}
 }

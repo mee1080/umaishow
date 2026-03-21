@@ -1,13 +1,14 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
 
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = libs.versions.jvmTarget.get()
+//            kotlinOptions.jvmTarget = libs.versions.jvmTarget.get()
         }
     }
 
