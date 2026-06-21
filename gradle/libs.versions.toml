@@ -1,6 +1,6 @@
 [versions]
 
-compose = "1.10.3"
+compose = "1.11.1"
 compose-lazyLayouts = "0.3.0"
 compose-stylesheet = "0.0.3"
 exposed = "1.1.1"
